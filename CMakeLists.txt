@@ -18,10 +18,13 @@ add_library("${ProjectName}" STATIC
 	include/vector.hpp
 	include/matrix.hpp
 
+	dependencies/OpenGL.h
 	dependencies/wglext.h
+	dependencies/glext.h
+	dependencies/KHR/khrplatform.h
 )
 target_link_libraries("${ProjectName}" OpenGL::GL)
-target_include_directories("${ProjectName}" PUBLIC include dependencies)
+target_include_directories("${ProjectName}" PUBLIC include dependencies dependencies/KHR)
 
 add_executable("${ProjectName}-test"
 	#src files
