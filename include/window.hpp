@@ -16,80 +16,13 @@ namespace qrk
 		//context creation tools 
 		PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
 		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
-
-		//PFNGLGENBUFFERSPROC glGenBuffers = nullptr;
-		//PFNGLDELETEBUFFERSPROC glDeleteBuffers = nullptr;
-		//PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
-		//PFNGLBINDBUFFERPROC glBindBuffer = nullptr;
-		//PFNGLBINDBUFFERRANGEPROC glBindBufferRange = nullptr;
-		//PFNGLBUFFERDATAPROC glBufferData = nullptr;
-		//PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
-		//PFNGLBINDVERTEXARRAYPROC glBindVertexArray = nullptr;
-		//PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = nullptr;
-		//PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer = nullptr;
-		//PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = nullptr;
-		//PFNGLVERTEXATTRIB3FPROC glVertexAttrib3f = nullptr;
-		//PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f = nullptr;
-		//PFNGLDELETEPROGRAMPROC glDeleteProgram = nullptr;
-		//PFNGLDELETESHADERPROC glDeleteShader = nullptr;
-		//PFNGLCREATESHADERPROC glCreateShader = nullptr;
-		//PFNGLSHADERSOURCEPROC glShaderSource = nullptr;
-		//PFNGLCOMPILESHADERPROC glCompileShader = nullptr;
-		//PFNGLCREATEPROGRAMPROC glCreateProgram = nullptr;
-		//PFNGLATTACHSHADERPROC glAttachShader = nullptr;
-		//PFNGLDETACHSHADERPROC glDetachShader = nullptr;
-		//PFNGLLINKPROGRAMPROC glLinkProgram = nullptr;
-		//PFNGLUSEPROGRAMPROC glUseProgram = nullptr;
-		//PFNGLBINDATTRIBLOCATIONPROC glBindAttribLocation = nullptr;
-		//PFNGLBINDFRAGDATALOCATIONPROC glBindFragDataLocation = nullptr;
-		//PFNGLGETFRAGDATALOCATIONPROC glGetFragDataLocation = nullptr;
-		//PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation = nullptr;
-		//PFNGLGETSHADERIVPROC glGetShaderiv = nullptr;
-		//PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = nullptr;
-		//PFNGLDRAWBUFFERSPROC glDrawBuffers = nullptr;
-		//PFNGLUNIFORM4FPROC glUniform4f = nullptr;
-		//PFNGLUNIFORM4FVPROC glUniform4fv = nullptr;
-		//PFNGLUNIFORM3FVPROC glUniform3fv = nullptr;
-		//PFNGLUNIFORM2FVPROC glUniform2fv = nullptr;
-		//PFNGLUNIFORM3FPROC glUniform3f = nullptr;
-		//PFNGLUNIFORM2FPROC glUniform2f = nullptr;
-		//PFNGLUNIFORM1FPROC glUniform1f = nullptr;
-		//PFNGLUNIFORM1IPROC glUniform1i = nullptr;
-		//PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = nullptr;
-		//PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv = nullptr;
-		//PFNGLGETPROGRAMIVPROC glGetProgramiv = nullptr;
-		//PFNGLGETACTIVEUNIFORMNAMEPROC glGetActiveUniformName = nullptr;
-		//PFNGLGETACTIVEUNIFORMSIVPROC glGetActiveUniformsiv = nullptr;
-		//PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform = nullptr;
-		//PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex = nullptr;
-		//PFNGLTEXIMAGE2DMULTISAMPLEPROC glTexImage2DMultisample = nullptr;
-		//PFNGLACTIVETEXTUREPROC glActiveTexture = nullptr;
-		//PFNGLGENERATEMIPMAPPROC glGenerateMipmap = nullptr;
-		//PFNGLMAPBUFFERPROC glMapBuffer = nullptr;
-		//PFNGLMAPBUFFERRANGEPROC glMapBufferRange = nullptr;
-		//PFNGLUNMAPBUFFERPROC glUnmapBuffer = nullptr;
-		//PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers = nullptr;
-		//PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers = nullptr;
-		//PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer = nullptr;
-		//PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage = nullptr;
-		//PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample = nullptr;
-		//PFNGLCOPYBUFFERSUBDATAPROC glCopyBufferSubData = nullptr;
-		//PFNGLBUFFERSUBDATAPROC glBufferSubData = nullptr;
-		//PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers = nullptr;
-		//PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers = nullptr;
-		//PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer = nullptr;
-		//PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D = nullptr;
-		//PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer = nullptr;
-		//PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus = nullptr;
-		//PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer = nullptr;
-		//PFNGLBLENDEQUATIONPROC glBlendEquation = nullptr;
 	};
 
-	class Window : GLTools
+	class glWindow : GLTools
 	{
 	public:
-		Window(std::string windowName, qrk::vec2u size, int windowStyle) { Create(windowName, size, windowStyle); }
-		bool Create(std::string windowName, qrk::vec2u size, int windowStyle);
+		glWindow(std::string windowName, qrk::vec2u size, int windowStyle, qrk::Color resizeColor = { 255, 255, 255, 255 }) : Open(true), windowSize(size) { Create(windowName, size, windowStyle, resizeColor); }
+		bool Create(std::string windowName, qrk::vec2u size, int windowStyle, qrk::Color resizeColor = { 255, 255, 255, 255 });
 		bool CreateContext();
 
 		void SwapWindowBuffers() { SwapBuffers(deviceContext); }
@@ -101,21 +34,73 @@ namespace qrk
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 
+		bool IsOpen() {
+			return Open; 
+		}
+		void GetWindowMessage()
+		{
+			MSG msg = {};
+			GetMessage(&msg, this->window, 0, 0);
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		//get and set window parameters
+		qrk::vec2u GetSize()
+		{
+			RECT windowRect;
+			if (!GetWindowRect(window, &windowRect))
+			{
+				std::string error = "Could not retrieve window size information: " + std::to_string(GetLastError());
+				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				return qrk::vec2u({ 0, 0 });
+			}
+			return qrk::vec2u({ (unsigned int)(windowRect.right - windowRect.left), (unsigned int)(windowRect.bottom - windowRect.top) });
+		}
+		void SetSize(qrk::vec2u newSize)
+		{
+			if (!SetWindowPos(window, HWND_TOP, 0, 0, newSize.x(), newSize.y(), SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOACTIVATE))
+			{
+				std::string error = std::to_string(GetLastError());
+				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+			}
+		}
+
+		qrk::vec2u GetPosition()
+		{
+			RECT windowRect;
+			if (!GetWindowRect(window, &windowRect))
+			{
+				std::string error = "Could not retrieve window size information: " + std::to_string(GetLastError());
+				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				return qrk::vec2u({ 0, 0 });
+			}
+			return qrk::vec2u({ (unsigned int)(windowRect.left), (unsigned int)(windowRect.top) });
+		}
+		void SetPosition(qrk::vec2u newPos)
+		{
+			if(!SetWindowPos(window, HWND_TOP, 0, 0, newPos.x(), newPos.y(), SWP_NOSIZE | SWP_NOREPOSITION | SWP_NOACTIVATE))
+			{
+				std::string error = std::to_string(GetLastError());
+				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+			}
+		}
+
 	private:
 		WNDCLASSEX windowClass;
 		HWND window;
 		HDC deviceContext;
 		HGLRC glContext;
 
+		qrk::vec2u windowSize;
+		bool Open;
+
 		static LRESULT CALLBACK Process(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		static LRESULT CALLBACK DummyProcess(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-		{
-			return DefWindowProc(hwnd, uMsg, wParam, lParam);
-		}
+		static LRESULT CALLBACK DummyProcess(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return DefWindowProc(hwnd, uMsg, wParam, lParam); } //dummy process for context creations
+
 		LRESULT WndProcess(UINT message, WPARAM wParam, LPARAM lParam);
 
 		void LoadContextCreationTools();
-		//void LoadAllExtensions();
 	};
 }
 

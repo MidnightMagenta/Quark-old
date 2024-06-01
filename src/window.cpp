@@ -1,17 +1,17 @@
 #include "../include/window.hpp"
 
-LRESULT CALLBACK qrk::Window::Process(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK qrk::glWindow::Process(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	qrk::Window* pThis;
+	qrk::glWindow* pThis;
 	if (message == WM_CREATE)
 	{
 		CREATESTRUCT* pCreate = (CREATESTRUCT*)lParam;
-		pThis = (qrk::Window*)pCreate->lpCreateParams;
+		pThis = (qrk::glWindow*)pCreate->lpCreateParams;
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
 		pThis->window = hWnd;
 	}
 	else {
-		pThis = (qrk::Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		pThis = (qrk::glWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	}
 
 	if (pThis)
@@ -21,7 +21,7 @@ LRESULT CALLBACK qrk::Window::Process(HWND hWnd, UINT message, WPARAM wParam, LP
 	else return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-LRESULT qrk::Window::WndProcess(UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT qrk::glWindow::WndProcess(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -29,15 +29,21 @@ LRESULT qrk::Window::WndProcess(UINT message, WPARAM wParam, LPARAM lParam)
 		RECT rect;
 		if (GetWindowRect(this->window, &rect))
 		{
-			qrk::vec2i size({ rect.right - rect.left, rect.bottom - rect.top });
+			qrk::vec2u size({(unsigned int) rect.right - (unsigned int) rect.left, (unsigned int) rect.bottom - (unsigned int) rect.top });
+			glViewport(0, 0, size.x(), size.y());
+			this->windowSize = size;
 		}
-		return DefWindowProc(this->window, message, wParam, lParam);
+		break;
+	case WM_CLOSE:
+		DestroyWindow(this->window);
+		this->Open = false;
+		break;
 	default:
 		return DefWindowProc(this->window, message, wParam, lParam);
 	}
 }
 
-bool qrk::Window::Create(std::string windowName, qrk::vec2u size, int windowStyle)
+bool qrk::glWindow::Create(std::string windowName, qrk::vec2u size, int windowStyle, qrk::Color resizeColor)
 {
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -47,7 +53,7 @@ bool qrk::Window::Create(std::string windowName, qrk::vec2u size, int windowStyl
 	windowClass.hInstance = GetModuleHandleA(NULL);
 	windowClass.hIcon = NULL;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	windowClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	windowClass.hbrBackground = CreateSolidBrush(RGB(resizeColor.r, resizeColor.g, resizeColor.b));
 	windowClass.lpszMenuName = NULL;
 	std::string className = windowName + "-CLASS";
 	windowClass.lpszClassName = className.c_str();
@@ -65,7 +71,7 @@ bool qrk::Window::Create(std::string windowName, qrk::vec2u size, int windowStyl
 	);
 	if (window == NULL)
 	{
-		MessageBox(0, "Failed to create window", "Error", MB_OK);
+		MessageBox(0, "Failed to create a window", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
@@ -75,7 +81,7 @@ bool qrk::Window::Create(std::string windowName, qrk::vec2u size, int windowStyl
 	return true;
 }
 
-bool qrk::Window::CreateContext()
+bool qrk::glWindow::CreateContext()
 {
 	//courtesy of AngeTheGreat
 	//create dummy window
@@ -97,7 +103,7 @@ bool qrk::Window::CreateContext()
 	HWND dummyWindow = CreateWindowExW(0, L"DUMMY_WINDOW", L"DUMMY_WINDOW", 0, 0, 0, 0, 0, 0, 0, GetModuleHandleA(0), 0);
 	if (dummyWindow == NULL)
 	{
-		MessageBox(0, "Failed to create dummy window", "Error", MB_OK);
+		MessageBox(0, "Failed to create dummy window", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 	HDC dummyDeviceHandle = GetDC(dummyWindow);
@@ -127,13 +133,13 @@ bool qrk::Window::CreateContext()
 	HGLRC dummyContext = wglCreateContext(dummyDeviceHandle);
 	if (dummyContext == nullptr)
 	{
-		MessageBox(0, "Failed to create dummy context", "Error", MB_OK);
+		MessageBox(0, "Failed to create dummy context", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
 	if (!wglMakeCurrent(dummyDeviceHandle, dummyContext))
 	{
-		MessageBox(0, "Failed to make dummy context current", "Error", MB_OK);
+		MessageBox(0, "Failed to make dummy context current", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 	
@@ -166,12 +172,12 @@ bool qrk::Window::CreateContext()
 	glContext = wglCreateContextAttribsARB(deviceContext, 0, contextAttribs);
 	if (glContext == 0)
 	{
-		MessageBox(0, "Failed to create modernGl context", "Error", MB_OK);
+		MessageBox(0, "Failed to create modernGl context", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 	if (!wglMakeCurrent(deviceContext, glContext))
 	{
-		MessageBox(0, "Failed to make modernGl context current", "Error", MB_OK);
+		MessageBox(0, "Failed to make modernGl context current", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 
@@ -180,14 +186,14 @@ bool qrk::Window::CreateContext()
 	DestroyWindow(dummyWindow);
 	if (!gladLoadGL())
 	{
-		MessageBox(0, "Could not initialize GLAD", "Error", MB_OK);
+		MessageBox(0, "Could not initialize GLAD", "Error", MB_OK | MB_ICONERROR);
 		return false;
 	}
 	//LoadAllExtensions();
 	return true;
 }
 
-void qrk::Window::LoadContextCreationTools()
+void qrk::glWindow::LoadContextCreationTools()
 {
 	wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 	wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
@@ -197,68 +203,3 @@ void qrk::Window::LoadContextCreationTools()
 		throw;
 	}
 }
-
-//void qrk::Window::LoadAllExtensions()
-//{
-//	glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
-//	glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)wglGetProcAddress("glDeleteBuffers");
-//	glBindBuffer = (PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer");
-//	glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)wglGetProcAddress("glBindBufferRange");
-//	glBufferData = (PFNGLBUFFERDATAPROC)wglGetProcAddress("glBufferData");
-//	glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
-//	glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
-//	glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
-//	glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray");
-//	glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)wglGetProcAddress("glVertexAttribPointer");
-//	glVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC)wglGetProcAddress("glVertexAttribIPointer");
-//	glVertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)wglGetProcAddress("glVertexAttrib3f");
-//	glVertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)wglGetProcAddress("glVertexAttrib4f");
-//
-//
-//	glDeleteShader = (PFNGLDELETESHADERPROC)wglGetProcAddress("glDeleteShader");
-//	glDeleteProgram = (PFNGLDELETEPROGRAMPROC)wglGetProcAddress("glDeleteProgram");
-//
-//	glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
-//	glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
-//	glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
-//	glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
-//	glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
-//	glDetachShader = (PFNGLDETACHSHADERPROC)wglGetProcAddress("glDetachShader");
-//	glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
-//	glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-//	glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)wglGetProcAddress("glBindAttribLocation");
-//	glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC)wglGetProcAddress("glBindFragDataLocation");
-//	glGetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC)wglGetProcAddress("glGetFragDataLocation");
-//	glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
-//	glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
-//	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
-//	glDrawBuffers = (PFNGLDRAWBUFFERSPROC)wglGetProcAddress("glDrawBuffers");
-//
-//	glUniform4fv = (PFNGLUNIFORM4FVPROC)wglGetProcAddress("glUniform4fv");
-//	glUniform3fv = (PFNGLUNIFORM3FVPROC)wglGetProcAddress("glUniform3fv");
-//	glUniform2fv = (PFNGLUNIFORM2FVPROC)wglGetProcAddress("glUniform2fv");
-//	glUniform4f = (PFNGLUNIFORM4FPROC)wglGetProcAddress("glUniform4f");
-//	glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
-//	glUniform2f = (PFNGLUNIFORM2FPROC)wglGetProcAddress("glUniform2f");
-//	glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
-//	glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
-//
-//	glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)wglGetProcAddress("glUniformMatrix4fv");
-//	glUniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC)wglGetProcAddress("glUniformMatrix3fv");
-//
-//	glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
-//
-//	glGetActiveUniformName = (PFNGLGETACTIVEUNIFORMNAMEPROC)wglGetProcAddress("glGetActiveUniformName");
-//	glGetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC)wglGetProcAddress("glGetActiveUniformsiv");
-//	glGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)wglGetProcAddress("glGetActiveUniform");
-//
-//	glMapBuffer = (PFNGLMAPBUFFERPROC)wglGetProcAddress("glMapBuffer");
-//	glMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)wglGetProcAddress("glMapBufferRange");
-//	glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)wglGetProcAddress("glUnmapBuffer");
-//
-//	glDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)wglGetProcAddress("glDrawElementsBaseVertex");
-//
-//
-//	glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
-//	glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress("glGenerateMipmap");
-//}

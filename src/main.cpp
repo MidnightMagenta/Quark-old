@@ -1,19 +1,27 @@
 #include <../include/window.hpp>
 #include <iostream>
+#include <../include/object.hpp>
 
 int main()
 {
-	qrk::Window wnd("Test", qrk::vec2u({(unsigned int)400, (unsigned int)400 }), WS_OVERLAPPEDWINDOW);
-    std::cout << "GL Version: " << glGetString(GL_VERSION) << std::endl;
-    wnd.MakeContextCurrent();
-    MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+	qrk::glWindow wnd("Test", qrk::vec2u({(unsigned int)800, (unsigned int)800 }), WS_OVERLAPPEDWINDOW, { 0, 100, 255, 255 });
+	wnd.MakeContextCurrent();
 
-        wnd.Clear({ 255, 100, 60, 255 });
-        wnd.SwapWindowBuffers();
-    }
-    
-    return 0;
+	qrk::Object obj("objects/cube.obj");
+
+	while (obj.WaitForLoad())
+	{
+		wnd.GetWindowMessage();
+		wnd.Clear({ 255, 0, 0, 255 });
+		wnd.SwapWindowBuffers();
+	}
+
+	while (wnd.IsOpen()) {
+		wnd.GetWindowMessage();
+
+		wnd.Clear({ 0, 100, 255, 255 });
+		wnd.SwapWindowBuffers();
+	}
+	
+	return 0;
 }
