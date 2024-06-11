@@ -3,7 +3,21 @@
 void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLfloat>> _promisedData)
 {
 	//get data from file 
+	if(!std::filesystem::exists(path)) 
+	{
+		std::string error = "Failed to find file: " + path;
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	std::ifstream objFile(path);
+	if(!objFile.is_open())
+	{
+		std::string error = "Failed to open file: " + path;
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	qrk::Object::ObjectData object;
 	std::string dataBuffer;
 	while (std::getline(objFile, dataBuffer))
@@ -69,7 +83,8 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 	if (!(object.vertexIndeces.size() == object.textureIndeces.size()) && !(object.vertexIndeces.size() == object.normalIndeces.size()))
 	{
 		std::string error = "Failed to load object at: " + path + " Index arrays have different sizes";
-		MessageBox(0, error.c_str(), "Error", MB_OK);
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 	for (unsigned int element : object.vertexIndeces)
@@ -77,7 +92,8 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 		if (element > object.vertices.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (vertices)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -86,7 +102,8 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 		if (element > object.textures.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (textures)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -95,7 +112,8 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 		if (element > object.normals.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (normals)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -115,7 +133,8 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 	if (!(alignedVertices.size() == alignedTextures.size()) && !(alignedVertices.size() == alignedNormals.size()))
 	{
 		std::string error = "Failed to load object at: " + path + " Aligned arrays have different sizes";
-		MessageBox(0, error.c_str(), "Error", MB_OK);
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
@@ -147,10 +166,24 @@ void qrk::Object::LoadObjectAsync(std::string path, std::promise<std::vector<GLf
 	loadFinished = true;
 }
 
-void qrk::Object::LoadObject(std::string path)
+void qrk::Object::LoadObject(const std::string& path)
 {
 	//get data from file 
+	if (!std::filesystem::exists(path))
+	{
+		std::string error = "Failed to find file: " + path;
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	std::ifstream objFile(path);
+	if (!objFile.is_open())
+	{
+		std::string error = "Failed to open file: " + path;
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+		return;
+	}
 	qrk::Object::ObjectData object;
 	std::string dataBuffer;
 	while (std::getline(objFile, dataBuffer))
@@ -215,7 +248,8 @@ void qrk::Object::LoadObject(std::string path)
 	if (!(object.vertexIndeces.size() == object.textureIndeces.size()) && !(object.vertexIndeces.size() == object.normalIndeces.size()))
 	{
 		std::string error = "Failed to load object at: " + path + " Index arrays have different sizes";
-		MessageBox(0, error.c_str(), "Error", MB_OK);
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 	for (unsigned int element : object.vertexIndeces)
@@ -223,7 +257,8 @@ void qrk::Object::LoadObject(std::string path)
 		if (element > object.vertices.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (vertices)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -232,7 +267,8 @@ void qrk::Object::LoadObject(std::string path)
 		if (element > object.textures.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (textures)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -241,7 +277,8 @@ void qrk::Object::LoadObject(std::string path)
 		if (element > object.normals.size())
 		{
 			std::string error = "Failed to load object at: " + path + " Out of range exception (normals)";
-			MessageBox(0, error.c_str(), "Error", MB_OK);
+			qrk::Debug::LogError(error);
+			MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 			return;
 		}
 	}
@@ -261,7 +298,8 @@ void qrk::Object::LoadObject(std::string path)
 	if (!(alignedVertices.size() == alignedTextures.size()) && !(alignedVertices.size() == alignedNormals.size()))
 	{
 		std::string error = "Failed to load object at: " + path + " Aligned arrays have different sizes";
-		MessageBox(0, error.c_str(), "Error", MB_OK);
+		qrk::Debug::LogError(error);
+		MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 		return;
 	}
 
@@ -294,21 +332,13 @@ void qrk::Object::LoadObject(std::string path)
 	returnData.shrink_to_fit();
 }
 
-void qrk::Object::DumpObjectData(std::string path)
+std::string qrk::Object::DumpObjectData(std::string path)
 {
-	//check if directory exists, create and open a log file
-	if (!std::filesystem::exists(path))
-	{
-		std::filesystem::create_directories(path);
-	}
-	std::stringstream filePath;
-	filePath << path << "/" << "object_log" << "_" << time(NULL) << ".txt";
-	std::ofstream file(filePath.str());
-
+	std::stringstream dataDump;
 	//print data to the log file
 	for (int i = 0; i < data.size(); i += 9)
 	{
-		file << "Vertex " << (i / 9) + 1 << "\nVertex coordinates:\t "
+		dataDump << "Vertex " << (i / 9) + 1 << "\nVertex coordinates:\t "
 			<< data[i]	   << " | "
 			<< data[i + 1] << " | "
 			<< data[i + 2] << " | "
@@ -320,5 +350,5 @@ void qrk::Object::DumpObjectData(std::string path)
 			<< data[i + 8] << " \n" << std::endl;
 	}
 	//clean up
-	file.close();
+	return dataDump.str();
 }

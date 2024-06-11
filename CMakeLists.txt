@@ -13,6 +13,9 @@ add_library("${ProjectName}" STATIC
 	#src files
 	src/window.cpp
 	src/object.cpp
+	src/GL_assets.cpp
+	src/qrk_debug.cpp
+	src/draw.cpp
 
 	#header files
 	include/window.hpp
@@ -20,7 +23,13 @@ add_library("${ProjectName}" STATIC
 	include/matrix.hpp
 	include/color.hpp
 	include/object.hpp
+	include/GL_assets.hpp
+	include/qrk_debug.hpp
+	include/draw.hpp
+	include/constants.hpp
+	include/units.hpp
 
+	#dependencies
 	dependencies/OpenGL.h
 	dependencies/wglext.h
 	dependencies/KHR/khrplatform.h
@@ -38,5 +47,8 @@ add_custom_command(TARGET "${ProjectName}-test" POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 		${PROJECT_SOURCE_DIR}/objects
 		${CMAKE_CURRENT_BINARY_DIR}/objects
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+		${PROJECT_SOURCE_DIR}/shaders
+		${CMAKE_CURRENT_BINARY_DIR}/shaders
 )
 target_link_libraries("${ProjectName}-test" "${ProjectName}")

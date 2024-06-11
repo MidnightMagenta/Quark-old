@@ -14,7 +14,7 @@ namespace qrk
 	class Vector
 	{
 	public:
-		Vector() : data{} {};
+		Vector() = delete;
 		Vector(const std::vector<t_vector>& _vector) { CreateVector(_vector); }
 		void CreateVector(const std::array<t_vector, t_vec_size>& _vector)
 		{
@@ -22,7 +22,7 @@ namespace qrk
 			else std::cout << "Unable to assign vector. Incompatible size" << std::endl;
 		}
 
-		Vector operator+ (const t_vector &other)
+		Vector operator+ (const t_vector& other)
 		{
 			qrk::Vector<t_vector, 2> result(this->data);
 			for (int i = 0; i < this->data.size(); i++) result.data[i] += other;
@@ -54,7 +54,7 @@ namespace qrk
 			return *this;
 		}
 
-		Vector operator- (const t_vector &other)
+		Vector operator- (const t_vector& other)
 		{
 			for (int i = 0; i < data.size(); i++) data[i] -= other;
 			return *this;
@@ -88,7 +88,7 @@ namespace qrk
 			return *this;
 		}
 
-		Vector operator = (const Vector &other)
+		Vector operator = (const Vector& other)
 		{
 			if (this == &other)
 			{
@@ -115,7 +115,7 @@ namespace qrk
 			else std::cout << "Unable to assign vector. Incompatible size" << std::endl;
 		}
 
-		Vector operator+ (const t_vector other)
+		Vector operator+ (const t_vector& other)
 		{
 			qrk::Vector<t_vector, 2> result(this->data);
 			for (int i = 0; i < this->data.size(); i++) result.data[i] += other;
@@ -144,7 +144,7 @@ namespace qrk
 			}
 			return *this;
 		}
-		Vector operator- (const t_vector other)
+		Vector operator- (const t_vector& other)
 		{
 			for (int i = 0; i < data.size(); i++) data[i] -= other;
 			return *this;
@@ -410,18 +410,20 @@ namespace qrk
 		if (length == 0.f) return vec3f({ 0.f, 0.f, 0.f });
 		return vec3f({ vec.x() / length, vec.y() / length, vec.z() / length });
 	}
+
 	inline vec3f CrossProduct(vec3f vec1, vec3f vec2)
 	{
-		return vec3f({ 
-			vec1.y() * vec2.z() - vec1.z() * vec2.y(), 
-			vec1.z() * vec2.x() - vec1.x() * vec2.z(), 
+		return vec3f({
+			vec1.y() * vec2.z() - vec1.z() * vec2.y(),
+			vec1.z() * vec2.x() - vec1.x() * vec2.z(),
 			vec1.x() * vec2.y() - vec1.y() * vec2.x() });
 	}
+
 	inline float DotProcuct(vec3f vec1, vec3f vec2)
 	{
 		return vec1.x() * vec2.x() + vec1.y() * vec2.y() + vec1.z() * vec2.z();
 	}
-	
+
 	inline qrk::vec2f Mat2xVec2(qrk::mat2& matrix, qrk::vec2f& vector)
 	{
 		return qrk::vec2f({
@@ -429,6 +431,7 @@ namespace qrk
 			matrix.data[1][0] * vector.x() + matrix.data[1][1] * vector.y()
 			});
 	}
+
 	inline qrk::vec3f Mat3xVec3(qrk::mat3& matrix, qrk::vec3f& vector)
 	{
 		return qrk::vec3f({
@@ -437,6 +440,7 @@ namespace qrk
 			matrix.data[2][0] * vector.x() + matrix.data[2][1] * vector.y() + matrix.data[2][2] * vector.z(),
 			});
 	}
+
 	inline qrk::vec4f Mat4xVec4(qrk::mat4& matrix, qrk::vec4f& vector)
 	{
 		return qrk::vec4f({
@@ -445,6 +449,90 @@ namespace qrk
 			matrix.data[2][0] * vector.x() + matrix.data[2][1] * vector.y() + matrix.data[2][2] * vector.z() + matrix.data[2][3] * vector.w(),
 			matrix.data[3][0] * vector.x() + matrix.data[3][1] * vector.y() + matrix.data[3][2] * vector.z() + matrix.data[3][3] * vector.w()
 			});
+	}
+
+	inline mat4 CreateTranslationMatrix(float x, float y, float z)
+	{
+		return mat4(
+			{
+				{1, 0, 0, x},
+				{0, 1, 0, y},
+				{0, 0, 1, z},
+				{0, 0, 0, 1}
+			});
+	}
+
+	inline mat4 CreateScaleMatrix(float x, float y, float z)
+	{
+		return mat4(
+			{
+				{x, 0, 0, 0},
+				{0, y, 0, 0},
+				{0, 0, z, 0},
+				{0, 0, 0, 1}
+			});
+	}
+
+	inline mat4 CreateRotationMatrix(float x, float y, float z)
+	{
+		mat4 rotationX({
+				{1, 0, 0, 0},
+				{0, std::cos(x), -std::sin(x), 0},
+				{0, std::sin(x), std::cos(x), 0},
+				{0, 0, 0, 1}
+			});
+		mat4 rotationY({
+				{std::cos(y), 0, -std::sin(y), 0},
+				{0, 1, 0, 0},
+				{std::sin(y), 0, std::cos(y), 0},
+				{0, 0, 0, 1}
+			});
+		mat4 rotationZ({
+				{std::cos(z), -std::sin(z), 0, 0},
+				{std::sin(z), std::cos(z), 0, 0},
+				{0, 0, 1, 0},
+				{0, 0, 0, 1}
+			});
+		return rotationZ * rotationY * rotationX;
+	}
+
+	inline mat4 CreateOrthographicProjectionMatrix(float left, float right, float top, float bottom, float _near, float _far)
+	{
+		return mat4({
+				{(2 / (right - left)), 0, 0, ((right + left) / (right - left))},
+				{0,	(2 / (top - bottom)), 0, ((top + bottom) / (top - bottom))},
+				{0,	0, (2 / (_far - _near)), ((_far + _near) / (_far - _near))},
+				{0,	0, 0, 1}
+			});
+	}
+
+	inline mat4 CreatePerspectiveProjectionMatrix(float fov, float aspect, float _near, float _far)
+	{
+		return mat4({
+				{(2 * _near / (aspect * std::tan(fov / 2))),	0, 0, 0},
+				{0,	(2 * _near / std::tan(fov / 2)),	0, 0},
+				{0,	0, (-(_far + _near) / (_far - _near)), (-(2 * _far * _near) / (_far - _near))},
+				{0, 0, -1, 0}
+			});
+	}
+
+	inline qrk::mat4 LookAtMatrix(vec3f position, vec3f target, vec3f up)
+	{
+		qrk::vec3f direction = qrk::normalize(position - target);
+		qrk::vec3f right = qrk::normalize(qrk::CrossProduct(direction, up));
+		qrk::mat4 first({
+			{right.x(),		right.y(),		right.z(),		0},
+			{up.x(),		up.y(),			up.z(),			0},
+			{direction.x(),	direction.y(),	direction.z(),	0},
+			{0,				0,				0,				1}
+			});
+		qrk::mat4 second({
+			{1, 0, 0, -position.x()},
+			{0, 1, 0, -position.y()},
+			{0, 0, 1, -position.z()},
+			{0, 0, 0, 1}
+			});
+		return first * second;
 	}
 }
 #endif // !QRK_VECTOR

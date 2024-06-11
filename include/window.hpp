@@ -7,6 +7,7 @@
 #include "../dependencies/OpenGL.h"
 #include "../include/vector.hpp"
 #include "../include/color.hpp"
+#include "../include/qrk_debug.hpp"
 
 namespace qrk
 {
@@ -21,8 +22,19 @@ namespace qrk
 	class glWindow : GLTools
 	{
 	public:
-		glWindow(std::string windowName, qrk::vec2u size, int windowStyle, qrk::Color resizeColor = { 255, 255, 255, 255 }) : Open(true), windowSize(size) { Create(windowName, size, windowStyle, resizeColor); }
-		bool Create(std::string windowName, qrk::vec2u size, int windowStyle, qrk::Color resizeColor = { 255, 255, 255, 255 });
+		glWindow(
+			const std::string& windowName, 
+			qrk::vec2u size, int windowStyle, 
+			qrk::Color resizeColor = { 255, 255, 255, 255 }) : 
+			Open(true), 
+			windowSize(size) 
+		{ Create(windowName, size, windowStyle, resizeColor); }
+
+		bool Create(
+			const std::string& windowName, 
+			qrk::vec2u size, 
+			int windowStyle, 
+			qrk::Color resizeColor = { 255, 255, 255, 255 });
 		bool CreateContext();
 
 		void SwapWindowBuffers() { SwapBuffers(deviceContext); }
@@ -40,9 +52,11 @@ namespace qrk
 		void GetWindowMessage()
 		{
 			MSG msg = {};
-			GetMessage(&msg, this->window, 0, 0);
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			if(PeekMessage(&msg, this->window, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
 
 		//get and set window parameters
@@ -52,7 +66,8 @@ namespace qrk
 			if (!GetWindowRect(window, &windowRect))
 			{
 				std::string error = "Could not retrieve window size information: " + std::to_string(GetLastError());
-				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				qrk::Debug::ShowErrorBox(error);
+				qrk::Debug::LogError(error);
 				return qrk::vec2u({ 0, 0 });
 			}
 			return qrk::vec2u({ (unsigned int)(windowRect.right - windowRect.left), (unsigned int)(windowRect.bottom - windowRect.top) });
@@ -62,7 +77,8 @@ namespace qrk
 			if (!SetWindowPos(window, HWND_TOP, 0, 0, newSize.x(), newSize.y(), SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOACTIVATE))
 			{
 				std::string error = std::to_string(GetLastError());
-				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				qrk::Debug::ShowErrorBox(error);
+				qrk::Debug::LogError(error);
 			}
 		}
 
@@ -72,7 +88,8 @@ namespace qrk
 			if (!GetWindowRect(window, &windowRect))
 			{
 				std::string error = "Could not retrieve window size information: " + std::to_string(GetLastError());
-				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				qrk::Debug::ShowErrorBox(error);
+				qrk::Debug::LogError(error);
 				return qrk::vec2u({ 0, 0 });
 			}
 			return qrk::vec2u({ (unsigned int)(windowRect.left), (unsigned int)(windowRect.top) });
@@ -82,11 +99,12 @@ namespace qrk
 			if(!SetWindowPos(window, HWND_TOP, 0, 0, newPos.x(), newPos.y(), SWP_NOSIZE | SWP_NOREPOSITION | SWP_NOACTIVATE))
 			{
 				std::string error = std::to_string(GetLastError());
-				MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+				qrk::Debug::ShowErrorBox(error);
+				qrk::Debug::LogError(error);
 			}
 		}
 
-	private:
+	protected:
 		WNDCLASSEX windowClass;
 		HWND window;
 		HDC deviceContext;
@@ -96,7 +114,8 @@ namespace qrk
 		bool Open;
 
 		static LRESULT CALLBACK Process(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-		static LRESULT CALLBACK DummyProcess(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return DefWindowProc(hwnd, uMsg, wParam, lParam); } //dummy process for context creations
+		static LRESULT CALLBACK DummyProcess(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
+		{ return DefWindowProc(hwnd, uMsg, wParam, lParam); } //dummy process for context creations
 
 		LRESULT WndProcess(UINT message, WPARAM wParam, LPARAM lParam);
 
