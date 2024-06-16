@@ -9,25 +9,34 @@
 #include <iostream>
 #include <string>
 
+#define Q_WINDOW_DEFAULT WS_OVERLAPPEDWINDOW
+#define Q_WINDOW_NONRESIZABLE WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU
+
 namespace qrk {
 class GLTools {
 public:
     //context creation tools
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = nullptr;
 };
 
 class glWindow : GLTools {
 public:
     glWindow(const std::string &windowName, qrk::vec2u size, int windowStyle,
+             int multisamplingLevel,
              qrk::Color resizeColor = {255, 255, 255, 255})
         : Open(true), windowSize(size) {
-        Create(windowName, size, windowStyle, resizeColor);
+        Create(windowName, size, windowStyle, multisamplingLevel, resizeColor);
     }
+    ~glWindow() {}
 
-    bool Create(const std::string &windowName, qrk::vec2u size, int windowStyle,
+    bool Create(const std::string &windowName, qrk::vec2u size,
+                int windowStyle = Q_WINDOW_DEFAULT, int multisamplingLevel = 8,
                 qrk::Color resizeColor = {255, 255, 255, 255});
-    bool CreateContext();
+    void Close() { PostQuitMessage(0); }
+    void Activate() { SetActiveWindow(window); }
+    bool CreateContext(int multisamplingLevel);
 
     void SwapWindowBuffers() { SwapBuffers(deviceContext); }
     void MakeContextCurrent() { wglMakeCurrent(deviceContext, glContext); }
@@ -36,6 +45,8 @@ public:
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
+
+    void SetSwapInterval(int interval) { wglSwapIntervalEXT(interval); }
 
     bool IsOpen() { return Open; }
     void GetWindowMessage() {

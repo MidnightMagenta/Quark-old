@@ -455,5 +455,8 @@ inline qrk::mat4 LookAtMatrix(vec3f position, vec3f target, vec3f up) {
                       {0, 0, 0, 1}});
     return first * second;
 }
+inline qrk::mat4 identity4() {
+    return qrk::mat4({1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+}
 }// namespace qrk
 #endif// !QRK_VECTOR

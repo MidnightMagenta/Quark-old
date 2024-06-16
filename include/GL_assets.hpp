@@ -13,13 +13,14 @@
 namespace qrk::assets {
 class Program {
 public:
-    Program() = delete;
+    Program() : programHandle(NULL){}
     Program(std::string vertexPath, std::string fragmentPath) {
         programHandle = glCreateProgram();
         if (!Compile(vertexPath, fragmentPath)) {
             qrk::Debug::LogError(
                     "Failed to compile shader. Vertex path: " + vertexPath +
                     " Fragment shader: " + fragmentPath);
+            throw std::exception();
         }
     }
 

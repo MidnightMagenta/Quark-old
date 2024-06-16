@@ -61,7 +61,31 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         return false;
     }
 
+    glGetShaderiv(vertexShader, GL_VALIDATE_STATUS, &compileStatus);
+    if (compileStatus != GL_TRUE) {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetShaderInfoLog(vertexShader, 1024, &log_length, message);
+        std::stringstream error;
+        error << "Failed to compile vertex shader: " << message;
+        qrk::Debug::LogError(error.str());
+        qrk::Debug::ShowErrorBox(error.str());
+        return false;
+    }
+
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus);
+    if (compileStatus != GL_TRUE) {
+        GLsizei log_length = 0;
+        GLchar message[1024];
+        glGetShaderInfoLog(fragmentShader, 1024, &log_length, message);
+        std::stringstream error;
+        error << "Failed to compile fragment shader: " << message;
+        qrk::Debug::LogError(error.str());
+        qrk::Debug::ShowErrorBox(error.str());
+        return false;
+    }
+
+    glGetShaderiv(fragmentShader, GL_VALIDATE_STATUS, &compileStatus);
     if (compileStatus != GL_TRUE) {
         GLsizei log_length = 0;
         GLchar message[1024];
@@ -81,7 +105,7 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
     if (compileStatus != GL_TRUE) {
         GLsizei log_length = 0;
         GLchar message[1024];
-        glGetShaderInfoLog(programHandle, 1024, &log_length, message);
+        glGetProgramInfoLog(programHandle, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to link program: " << message;
         qrk::Debug::LogError(error.str());

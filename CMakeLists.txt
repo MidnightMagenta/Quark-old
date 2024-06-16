@@ -16,6 +16,7 @@ add_library("${ProjectName}" STATIC
 	src/GL_assets.cpp
 	src/qrk_debug.cpp
 	src/draw.cpp
+	src/app_entry_point.cpp
 
 	#header files
 	include/window.hpp
@@ -28,6 +29,7 @@ add_library("${ProjectName}" STATIC
 	include/draw.hpp
 	include/constants.hpp
 	include/units.hpp
+	include/app_entry_point.hpp
 
 	#dependencies
 	dependencies/OpenGL.h

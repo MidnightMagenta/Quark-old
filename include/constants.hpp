@@ -4,9 +4,9 @@
 #include "../include/units.hpp"
 
 namespace qrk::constants {
-inline const float PI = 3.14159265358979323846;
-inline const float TAU = 6.28318530717958647692;
-inline const float c = 300000000;
+inline const float PI = 3.14159265358979323846f;
+inline const float TAU = 6.28318530717958647692f;
+inline const float c = 300000000.f;
 
 inline float RadToDeg(float angle) { return (angle * 180) / PI; }
 inline float DegToRad(float angle) { return (angle * PI) / 180; }

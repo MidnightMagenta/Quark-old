@@ -4,6 +4,12 @@
 #include <algorithm>
 #include <inttypes.h>
 
+#define Q_COLOR_WHITE qrk::Color(255, 255, 255, 255)
+#define Q_COLOR_BLACK qrk::Color(0, 0, 0, 255)
+#define Q_COLOR_RED qrk::Color(255, 0, 0, 255)
+#define Q_COLOR_GREEN qrk::Color(0, 255, 0, 255)
+#define Q_COLOR_BLUE qrk::Color(0, 0, 255, 255)
+
 namespace qrk {
 struct Color {
     uint8_t r, g, b, a;

@@ -4,11 +4,11 @@
 #include "../glad/glad.h"
 #include "../include/GL_assets.hpp"
 #include "../include/color.hpp"
+#include "../include/draw.hpp"
 #include "../include/matrix.hpp"
 #include "../include/qrk_debug.hpp"
 #include "../include/vector.hpp"
 #include <Windows.h>
-#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <future>
@@ -40,8 +40,11 @@ public:
 
     bool WaitForLoad() {
         if (asyncLoad) {
+            if (!data.empty()) { return false; }
             if (loadFinished) {
                 data = futureData.get();
+                promisedData = std::promise<std::vector<GLfloat>>();
+                futureData = promisedData.get_future();
                 return false;
             } else
                 return true;
@@ -92,10 +95,9 @@ private:
 class GLObject {
 public:
     GLObject() = delete;
-    GLObject(qrk::Object &_objectData, qrk::assets::Program *_program)
+    GLObject(qrk::Object &_objectData)
         : objectData(&_objectData), position({0, 0, 0}), rotation({0, 0, 0}),
-          scale({0, 0, 0}), color({1.f, 1.f, 1.f, 1.f}) {
-        //if (!program->bound) glUseProgram(program->programHandle);
+          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glBindVertexArray(VAO);
@@ -117,6 +119,8 @@ public:
     qrk::vec3f GetPosition() { return position; }
     qrk::vec3f GetRotation() { return rotation; }
     qrk::vec3f GetScale() { return scale; }
+
+    qrk::obj GetDrawData();
 
 private:
     qrk::Object *objectData;
