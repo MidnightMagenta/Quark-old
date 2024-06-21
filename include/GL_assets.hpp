@@ -13,7 +13,7 @@
 namespace qrk::assets {
 class Program {
 public:
-    Program() : programHandle(NULL){}
+    Program() : programHandle(NULL), uniformBlockIndex(NULL){}
     Program(std::string vertexPath, std::string fragmentPath) {
         programHandle = glCreateProgram();
         if (!Compile(vertexPath, fragmentPath)) {
@@ -22,9 +22,13 @@ public:
                     " Fragment shader: " + fragmentPath);
             throw std::exception();
         }
+        glUseProgram(programHandle);
+        uniformBlockIndex =
+                glGetUniformBlockIndex(programHandle, "uniformBlock");
     }
 
     GLuint programHandle;
+    GLuint uniformBlockIndex;
 
 private:
     bool Compile(std::string vertexPath, std::string fragmentPath);

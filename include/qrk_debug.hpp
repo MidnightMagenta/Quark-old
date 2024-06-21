@@ -1,6 +1,8 @@
 #ifndef QRK_DEBUG
 #define QRK_DEBUG
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <Windows.h>
 #include <ctime>
 #include <filesystem>
@@ -26,4 +28,5 @@ inline std::ofstream logFile;
 inline void CloseLog() { logFile.close(); }
 }// namespace qrk::Debug
 
+#undef _CRT_SECURE_NO_WARNINGS
 #endif// !QRK_DEBUG

@@ -3,12 +3,6 @@
 void qrk::Object::LoadObjectAsync(
         std::string path, std::promise<std::vector<GLfloat>> _promisedData) {
     //get data from file
-    if (!std::filesystem::exists(path)) {
-        std::string error = "Failed to find file: " + path;
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
-    }
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
         std::string error = "Failed to open file: " + path;
@@ -132,33 +126,31 @@ void qrk::Object::LoadObjectAsync(
         throw std::exception();
     }
 
-    std::vector<GLfloat> returnData;
+    std::vector<GLfloat> loadResult;
 
     for (int i = 0; i < alignedVertices.size(); i++) {
-        returnData.push_back(alignedVertices[i].x());
-        returnData.push_back(alignedVertices[i].y());
-        returnData.push_back(alignedVertices[i].z());
-        returnData.push_back(alignedVertices[i].w());
+        loadResult.push_back(alignedVertices[i].x());
+        loadResult.push_back(alignedVertices[i].y());
+        loadResult.push_back(alignedVertices[i].z());
+        loadResult.push_back(alignedVertices[i].w());
 
-        returnData.push_back(alignedTextures[i].x());
-        returnData.push_back(alignedTextures[i].y());
+        loadResult.push_back(alignedTextures[i].x());
+        loadResult.push_back(alignedTextures[i].y());
 
-        returnData.push_back(alignedNormals[i].x());
-        returnData.push_back(alignedNormals[i].y());
-        returnData.push_back(alignedNormals[i].z());
+        loadResult.push_back(alignedNormals[i].x());
+        loadResult.push_back(alignedNormals[i].y());
+        loadResult.push_back(alignedNormals[i].z());
     }
 
     //clean up
-    alignedVertices.clear();
-    alignedVertices.shrink_to_fit();
-    alignedTextures.clear();
-    alignedTextures.shrink_to_fit();
-    alignedNormals.clear();
-    alignedNormals.shrink_to_fit();
+    std::vector<qrk::vec4f>().swap(alignedVertices);
+    std::vector<qrk::vec3f>().swap(alignedNormals);
+    std::vector<qrk::vec2f>().swap(alignedTextures);
     object.Clear();
 
     //return data
-    _promisedData.set_value(returnData);
+    _promisedData.set_value(loadResult);
+    std::vector<GLfloat>().swap(loadResult);
     loadFinished = true;
 }
 
@@ -293,35 +285,31 @@ void qrk::Object::LoadObject(const std::string &path) {
         throw std::exception();
     }
 
-    std::vector<GLfloat> returnData;
+    std::vector<GLfloat> loadResult;
 
     for (int i = 0; i < alignedVertices.size(); i++) {
-        returnData.push_back(alignedVertices[i].x());
-        returnData.push_back(alignedVertices[i].y());
-        returnData.push_back(alignedVertices[i].z());
-        returnData.push_back(alignedVertices[i].w());
+        loadResult.push_back(alignedVertices[i].x());
+        loadResult.push_back(alignedVertices[i].y());
+        loadResult.push_back(alignedVertices[i].z());
+        loadResult.push_back(alignedVertices[i].w());
 
-        returnData.push_back(alignedTextures[i].x());
-        returnData.push_back(alignedTextures[i].y());
+        loadResult.push_back(alignedTextures[i].x());
+        loadResult.push_back(alignedTextures[i].y());
 
-        returnData.push_back(alignedNormals[i].x());
-        returnData.push_back(alignedNormals[i].y());
-        returnData.push_back(alignedNormals[i].z());
+        loadResult.push_back(alignedNormals[i].x());
+        loadResult.push_back(alignedNormals[i].y());
+        loadResult.push_back(alignedNormals[i].z());
     }
 
     //clean up
-    alignedVertices.clear();
-    alignedVertices.shrink_to_fit();
-    alignedTextures.clear();
-    alignedTextures.shrink_to_fit();
-    alignedNormals.clear();
-    alignedNormals.shrink_to_fit();
+    std::vector<qrk::vec4f>().swap(alignedVertices);
+    std::vector<qrk::vec3f>().swap(alignedNormals);
+    std::vector<qrk::vec2f>().swap(alignedTextures);
     object.Clear();
 
     //return data and further clean up
-    data = returnData;
-    returnData.clear();
-    returnData.shrink_to_fit();
+    data = loadResult;
+    std::vector<GLfloat>().swap(loadResult);
 }
 
 std::string qrk::Object::DumpObjectData(std::string path) {
@@ -344,7 +332,7 @@ qrk::obj qrk::GLObject::GetDrawData() {
     qrk::obj returnData;
     returnData.VAO = this->VAO;
     returnData.VBO = this->VBO;
-    returnData.vertexCount = (GLsizei) (this->objectData->data.size() / 9);
+    returnData.vertexCount = this->objectData->vertexNumber;
     returnData.position = this->position;
     returnData.rotation = this->rotation;
     returnData.scale = this->scale;

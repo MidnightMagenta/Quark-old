@@ -6,7 +6,6 @@ int main() {
     try {
         return run();
     } catch (...) {
-        qrk::Debug::ShowErrorBox("Check log file");
         return -1;
     }
 }

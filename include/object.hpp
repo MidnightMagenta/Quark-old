@@ -2,18 +2,16 @@
 #define QRK_OBJECT
 
 #include "../glad/glad.h"
-#include "../include/GL_assets.hpp"
 #include "../include/color.hpp"
 #include "../include/draw.hpp"
-#include "../include/matrix.hpp"
 #include "../include/qrk_debug.hpp"
 #include "../include/vector.hpp"
 #include <Windows.h>
 #include <filesystem>
-#include <fstream>
 #include <future>
-#include <sstream>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -22,7 +20,13 @@ class Object {
 public:
     Object() = delete;
     Object(const std::string &path, bool async = true)
-        : loadFinished(false), asyncLoad(async) {
+        : loadFinished(false), asyncLoad(async), vertexNumber(NULL) {
+        if (!std::filesystem::exists(path)) {
+            std::string error = "Failed to find file: " + path;
+            qrk::Debug::LogError(error);
+            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+            throw std::exception();
+        }
         if (async) {
             _path = path;
             futureData = promisedData.get_future();
@@ -43,8 +47,7 @@ public:
             if (!data.empty()) { return false; }
             if (loadFinished) {
                 data = futureData.get();
-                promisedData = std::promise<std::vector<GLfloat>>();
-                futureData = promisedData.get_future();
+                vertexNumber = (GLsizei) data.size() / 9;
                 return false;
             } else
                 return true;
@@ -52,17 +55,21 @@ public:
             return false;
     }
 
+    void DeleteData() { std::vector<GLfloat>().swap(data); }
+
     std::string DumpObjectData(std::string path = "logs");
 
     std::vector<GLfloat> data;//vertex texture normals
+    GLsizei vertexNumber;
+
 private:
     void LoadObjectAsync(std::string path,
                          std::promise<std::vector<GLfloat>> _promisedData);
     void LoadObject(const std::string &path);
 
-    std::string _path;
     std::atomic_bool loadFinished;
     bool asyncLoad;
+    std::string _path;
     std::promise<std::vector<GLfloat>> promisedData;
     std::future<std::vector<GLfloat>> futureData;
 
@@ -76,18 +83,13 @@ private:
         std::vector<int> normalIndeces;
 
         void Clear() {
-            vertices.clear();
-            vertices.shrink_to_fit();
-            textures.clear();
-            textures.shrink_to_fit();
-            normals.clear();
-            normals.shrink_to_fit();
-            vertexIndeces.clear();
-            vertexIndeces.shrink_to_fit();
-            textureIndeces.clear();
-            textureIndeces.shrink_to_fit();
-            normalIndeces.clear();
-            normalIndeces.shrink_to_fit();
+            std::vector<qrk::vec4f>().swap(vertices);
+            std::vector<qrk::vec3f>().swap(normals);
+            std::vector<qrk::vec2f>().swap(textures);
+
+            std::vector<int>().swap(vertexIndeces);
+            std::vector<int>().swap(textureIndeces);
+            std::vector<int>().swap(normalIndeces);
         }
     };
 };

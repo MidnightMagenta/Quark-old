@@ -39,6 +39,13 @@ public:
     bool CreateContext(int multisamplingLevel);
 
     void SwapWindowBuffers() { SwapBuffers(deviceContext); }
+    bool IsContextCurrent() {
+        if (wglGetCurrentContext() == glContext) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     void MakeContextCurrent() { wglMakeCurrent(deviceContext, glContext); }
     void Clear(qrk::Color color) {
         qrk::ColorF fColor = qrk::ConvertToFloat(color);

@@ -2,13 +2,22 @@
 
 void qrk::Renderer::Draw() {
     if (!targetWindow->IsOpen()) { return; }
+    if (!targetWindow->IsContextCurrent()) {
+        targetWindow->MakeContextCurrent();
+    }
 
     glUseProgram(q_3dDraw.programHandle);
 
-    for (int i = 0; i < q_3dObjects.size(); i++) {
-        glBindVertexArray(q_3dObjects[i].VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, q_3dObjects[i].VBO);
+    float fov = 70.f * qrk::units::deg;
+    if (this->__settings != nullptr) { fov = this->__settings->fov; }
+    qrk::mat4 projectionMatrix = qrk::CreatePerspectiveProjectionMatrix(
+            fov,
+            (float) targetWindow->GetSize().x() /
+                    (float) targetWindow->GetSize().y(),
+            1.f, 100.f);
 
+    for (int i = 0; i < q_3dObjects.size(); i++) {
+        //generate draw data
         qrk::mat4 transformMatrix = qrk::CreateTranslationMatrix(
                 q_3dObjects[i].position.x(), q_3dObjects[i].position.y(),
                 q_3dObjects[i].position.z());
@@ -18,37 +27,29 @@ void qrk::Renderer::Draw() {
         qrk::mat4 scaleMatrix = qrk::CreateScaleMatrix(
                 q_3dObjects[i].scale.x(), q_3dObjects[i].scale.y(),
                 q_3dObjects[i].scale.z());
-        float fov = 70.f * qrk::units::deg;
-        if (this->__settings != nullptr) { fov = this->__settings->fov; }
-        qrk::mat4 projectionMatrix = qrk::CreatePerspectiveProjectionMatrix(
-                fov,
-                (float) targetWindow->GetSize().x() /
-                        (float) targetWindow->GetSize().y(),
-                1.f, 100.f);
-        qrk::mat4 identity({1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1});
+        qrk::mat4 identity = qrk::identity4();
 
-        //add texture binding here once texture class done
+        //move the draw data to a unifrom block in the shader
+        UBO3D_Data.position = transformMatrix;
+        UBO3D_Data.rotation = rotationMatrix;
+        UBO3D_Data.scale = scaleMatrix;
+        UBO3D_Data.projection = projectionMatrix;
+        UBO3D_Data.view = identity;
+        UBO3D_Data.color =
+                qrk::vec4f({q_3dObjects[i].color.r, q_3dObjects[i].color.g,
+                            q_3dObjects[i].color.b, q_3dObjects[i].color.a});
 
-        glUniformMatrix4fv(
-                glGetUniformLocation(q_3dDraw.programHandle, "posMatrix"), 1,
-                GL_TRUE, &transformMatrix.data[0][0]);
-        glUniformMatrix4fv(
-                glGetUniformLocation(q_3dDraw.programHandle, "rotMatrix"), 1,
-                GL_TRUE, &rotationMatrix.data[0][0]);
-        glUniformMatrix4fv(
-                glGetUniformLocation(q_3dDraw.programHandle, "scaleMatrix"), 1,
-                GL_TRUE, &scaleMatrix.data[0][0]);
-        glUniformMatrix4fv(
-                glGetUniformLocation(q_3dDraw.programHandle, "projMatrix"), 1,
-                GL_TRUE, &projectionMatrix.data[0][0]);
-        glUniformMatrix4fv(
-                glGetUniformLocation(q_3dDraw.programHandle, "viewMatrix"), 1,
-                GL_TRUE, &identity.data[0][0]);
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData3D),
+                        &UBO3D_Data);
+        glUniformBlockBinding(q_3dDraw.programHandle,
+                              q_3dDraw.uniformBlockIndex, 3);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
 
-        glUniform4f(glGetUniformLocation(q_3dDraw.programHandle, "color"),
-                    q_3dObjects[i].color.r, q_3dObjects[i].color.g,
-                    q_3dObjects[i].color.b, q_3dObjects[i].color.a);
+        glBindVertexArray(q_3dObjects[i].VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, q_3dObjects[i].VBO);
 
+        //move vertex attibutes to the shader
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) 0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
@@ -56,6 +57,7 @@ void qrk::Renderer::Draw() {
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) (6 * sizeof(GLfloat)));
 
+        //draw
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);

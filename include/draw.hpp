@@ -24,6 +24,15 @@ struct obj {
     ColorF color = qrk::ColorF(1.f, 1.f, 1.f, 1.f);
 };
 
+struct UniformData3D {
+    qrk::mat4 position = identity4();
+    qrk::mat4 rotation = identity4();
+    qrk::mat4 scale = identity4();
+    qrk::mat4 view = identity4();
+    qrk::mat4 projection = identity4();
+    qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+};
+
 struct settings {
     bool depthTest = true;
     bool cullFaces = true;
@@ -75,6 +84,13 @@ public:
 
         q_3dDraw = qrk::assets::Program("shaders/3d_vertex_shader.vert",
                                         "shaders/3d_fragment_shader.frag");
+
+        glGenBuffers(1, &UBO3D);
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), nullptr,
+                     GL_STATIC_DRAW);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData3D),
+                        &UBO3D_Data);
     }
 
     ~Renderer() {}
@@ -104,6 +120,9 @@ private:
     //misc variables
     qrk::glWindow *targetWindow;
     qrk::settings *__settings;
+
+    qrk::UniformData3D UBO3D_Data;
+    GLuint UBO3D;
 };
 }// namespace qrk
 

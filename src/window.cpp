@@ -219,7 +219,6 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
         qrk::Debug::LogError("Could not initialize GLAD");
         return false;
     }
-    //LoadAllExtensions();
     return true;
 }
 

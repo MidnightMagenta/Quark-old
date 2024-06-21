@@ -17,6 +17,7 @@ add_library("${ProjectName}" STATIC
 	src/qrk_debug.cpp
 	src/draw.cpp
 	src/app_entry_point.cpp
+	src/image.cpp
 
 	#header files
 	include/window.hpp
@@ -30,12 +31,14 @@ add_library("${ProjectName}" STATIC
 	include/constants.hpp
 	include/units.hpp
 	include/app_entry_point.hpp
+	include/image.hpp
 
 	#dependencies
 	dependencies/OpenGL.h
 	dependencies/wglext.h
 	dependencies/KHR/khrplatform.h
 	dependencies/glad/glad.c
+	dependencies/STB/stb_image.h
 )
 target_link_libraries("${ProjectName}" OpenGL::GL)
 target_include_directories("${ProjectName}" PUBLIC include dependencies dependencies/KHR)

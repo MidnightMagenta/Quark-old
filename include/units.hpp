@@ -52,6 +52,26 @@ const float lb = 453.592f;
 //angle
 const float rad = 1.f;
 const float deg = 0.0174533f;
+//temperature
+const float celcius = 1.f;
+//work
+const float uW = 0.000001f;
+const float mW = 0.001f;
+const float W = 1.f;
+const float kW = 1000.f;
+const float MW = 1000000.f;
+const float GW = 1000000000.f;
+const float hp = 745.7f;
+//pressure
+const float uPa = 0.000001f;
+const float mPa = 0.001f;
+const float Pa = 1.f;
+const float kPa = 1000.f;
+const float MPa = 1000000.f;
+const float GPa = 1000000000.f;
+const float bar = 100000.f;
+const float atm = 101325.03982073f;
+const float lbPerSqInch = 6894.76f;
 }// namespace qrk::units
 
 #endif// !Q_UNITS

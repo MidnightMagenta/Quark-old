@@ -5167,3 +5167,5 @@ GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glad_glPolygonOffsetClamp;
 #endif
 
 #endif
+
+#undef APIENTRY

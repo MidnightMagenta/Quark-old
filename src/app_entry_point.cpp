@@ -14,19 +14,26 @@ int run() {
     wnd.MakeContextCurrent();
 
     qrk::Object obj("objects/2_ico_sphere.obj");
+    qrk::Object cube("objects/cube.obj");
 
-    while (obj.WaitForLoad()) {
+    while (obj.WaitForLoad() || cube.WaitForLoad()) {
         wnd.GetWindowMessage();
         wnd.Clear({255, 0, 0, 255});
         wnd.SwapWindowBuffers();
     }
+
     qrk::settings stng;
     stng.fov = 70 * qrk::units::deg;
     qrk::Renderer render(wnd, &stng);
-
     qrk::GLObject drawObj(obj);
-    drawObj.SetScale(0.5, 0.5, 0.5);
-    drawObj.SetPosition(0, 0, -5);
+    qrk::GLObject cubeObj(cube);
+    obj.DeleteData();
+    cube.DeleteData();
+    drawObj.SetScale(0.6f, 0.6f, 0.6f);
+    drawObj.SetPosition(0, 0, -10);
+
+    cubeObj.SetScale(0.6f, 0.6f, 0.6f);
+    cubeObj.SetPosition(0, 0, -10);
 
     int fc = 0;
 
@@ -36,9 +43,13 @@ int run() {
         wnd.GetWindowMessage();
         wnd.Clear({10, 10, 10, 255});
 
-        drawObj.SetRotation(0, fc * qrk::units::deg, 0);
+        drawObj.SetRotation(-fc * qrk::units::deg * 0.4f, fc * qrk::units::deg,
+                            fc * 0.5 * qrk::units::deg);
+        cubeObj.SetRotation(-fc * qrk::units::deg * 0.4f, fc * qrk::units::deg,
+                            fc * 0.5 * qrk::units::deg);
 
         render.QueueDraw(drawObj.GetDrawData(), qrk::DrawTarget::Q_3D_DRAW);
+        render.QueueDraw(cubeObj.GetDrawData(), qrk::DrawTarget::Q_3D_DRAW);
         render.Draw();
 
         wnd.SwapWindowBuffers();

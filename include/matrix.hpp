@@ -19,7 +19,7 @@ namespace qrk {
 template<typename mat_type, size_t columns, size_t rows>
 class Matrix {
 public:
-    Matrix() = delete;
+    Matrix(){};
     Matrix(const std::array<std::array<mat_type, rows>, columns> &_matrix)
         : data(_matrix) {}
     Matrix(const std::vector<std::vector<mat_type>> &_matrix) {
@@ -107,19 +107,22 @@ public:
 
 //type definitions for common matrices
 typedef Matrix<float, 2, 2> mat2;
+typedef mat2 mat2x2;
 typedef Matrix<float, 3, 3> mat3;
+typedef mat3 mat3x3;
 typedef Matrix<float, 4, 4> mat4;
+typedef mat4 mat4x4;
 
 typedef Matrix<float, 2, 1> mat2x1;
-typedef Matrix<float, 2, 3> mat2x2;
+typedef Matrix<float, 2, 3> mat2x3;
 typedef Matrix<float, 2, 4> mat2x4;
 
 typedef Matrix<float, 3, 1> mat3x1;
-typedef Matrix<float, 3, 3> mat3x2;
+typedef Matrix<float, 3, 2> mat3x2;
 typedef Matrix<float, 3, 4> mat3x4;
 
 typedef Matrix<float, 4, 1> mat4x1;
-typedef Matrix<float, 4, 3> mat4x2;
-typedef Matrix<float, 4, 4> mat4x4;
+typedef Matrix<float, 4, 2> mat4x2;
+typedef Matrix<float, 4, 3> mat4x3;
 }// namespace qrk
 #endif// !QRK_MATRIX
