@@ -11,3 +11,8 @@ CTestTestfile.cmake
 _deps
 .vs/
 out/
+/diagnostics
+/objects/cow.obj
+/objects/materialTests/basicMaterial.txt
+/objects/monkey.obj
+/objects/UV_sphere.obj
