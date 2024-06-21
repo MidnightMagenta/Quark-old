@@ -18,6 +18,7 @@ add_library("${ProjectName}" STATIC
 	src/draw.cpp
 	src/app_entry_point.cpp
 	src/image.cpp
+	src/texture.cpp
 
 	#header files
 	include/window.hpp
@@ -32,6 +33,7 @@ add_library("${ProjectName}" STATIC
 	include/units.hpp
 	include/app_entry_point.hpp
 	include/image.hpp
+	include/texture.hpp
 
 	#dependencies
 	dependencies/OpenGL.h
@@ -55,5 +57,8 @@ add_custom_command(TARGET "${ProjectName}-test" POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory 
 		${PROJECT_SOURCE_DIR}/shaders
 		${CMAKE_CURRENT_BINARY_DIR}/shaders
+			COMMAND ${CMAKE_COMMAND} -E copy_directory 
+		${PROJECT_SOURCE_DIR}/textures
+		${CMAKE_CURRENT_BINARY_DIR}/textures
 )
 target_link_libraries("${ProjectName}-test" "${ProjectName}")

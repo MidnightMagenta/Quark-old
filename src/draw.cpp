@@ -38,6 +38,13 @@ void qrk::Renderer::Draw() {
         UBO3D_Data.color =
                 qrk::vec4f({q_3dObjects[i].color.r, q_3dObjects[i].color.g,
                             q_3dObjects[i].color.b, q_3dObjects[i].color.a});
+        if (q_3dObjects[i].textured && q_3dObjects[i].texture != nullptr) {
+            glUniform1i(texturedID, GL_TRUE);
+            q_3dObjects[i].texture->BindTexture();
+            glUniform1i(textureID, 0);
+        } else {
+            glUniform1i(texturedID, GL_FALSE);
+        }
 
         glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData3D),

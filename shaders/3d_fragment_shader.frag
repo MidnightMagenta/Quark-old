@@ -1,7 +1,7 @@
 #version 460 core
 
-//uniform sampler2D inTexture;
-//uniform bool textured;
+uniform sampler2D inTexture;
+uniform bool textured;
 
 in vec3 normalsToFrag;
 in vec2 texturesToFrag;
@@ -11,5 +11,12 @@ out vec4 outColor;
 
 void main()
 {
-	outColor = colorToFrag;
+	if(textured)
+	{
+		outColor = texture(inTexture, texturesToFrag) * colorToFrag;
+	}
+	else
+	{
+		outColor = colorToFrag;
+	}
 }

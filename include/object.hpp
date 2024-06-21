@@ -6,6 +6,7 @@
 #include "../include/draw.hpp"
 #include "../include/qrk_debug.hpp"
 #include "../include/vector.hpp"
+#include "../include/texture.hpp"
 #include <Windows.h>
 #include <filesystem>
 #include <future>
@@ -99,7 +100,7 @@ public:
     GLObject() = delete;
     GLObject(qrk::Object &_objectData)
         : objectData(&_objectData), position({0, 0, 0}), rotation({0, 0, 0}),
-          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}) {
+          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glBindVertexArray(VAO);
@@ -117,6 +118,14 @@ public:
     void SetScale(float x, float y, float z) { scale = qrk::vec3f({x, y, z}); }
     void SetColor(qrk::Color _color) { color = qrk::ConvertToFloat(_color); }
     void SetColor(qrk::ColorF _color) { color = _color; }
+    void SetTexture(qrk::Texture2D &_texture) {
+        texture = &_texture;
+        textured = true;
+    }
+    void RemoveTexture() {
+        texture = nullptr;
+        textured = false;
+    }
 
     qrk::vec3f GetPosition() { return position; }
     qrk::vec3f GetRotation() { return rotation; }
@@ -126,6 +135,8 @@ public:
 
 private:
     qrk::Object *objectData;
+    qrk::Texture2D *texture;
+    bool textured;
 
     GLuint VAO;
     GLuint VBO;

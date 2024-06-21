@@ -6,6 +6,7 @@
 #include "../include/matrix.hpp"
 #include "../include/vector.hpp"
 #include "../include/window.hpp"
+#include "../include/texture.hpp"
 #include "glad/glad.h"
 #include <vector>
 
@@ -15,6 +16,8 @@ enum class DrawTarget { Q_3D_DRAW, Q_2D_DRAW };
 struct obj {
     GLuint VAO = 0;
     GLuint VBO = 0;
+    qrk::Texture2D *texture = nullptr;
+    bool textured = false;
 
     GLsizei vertexCount = 0;
 
@@ -84,6 +87,8 @@ public:
 
         q_3dDraw = qrk::assets::Program("shaders/3d_vertex_shader.vert",
                                         "shaders/3d_fragment_shader.frag");
+        textureID = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
+        texturedID = glGetUniformLocation(q_3dDraw.programHandle, "textured");
 
         glGenBuffers(1, &UBO3D);
         glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
@@ -114,8 +119,10 @@ private:
     //vectors containing draw queue
     std::vector<obj> q_3dObjects;
 
-    //programs for different draw types
+    //3d draw program, and associated 3d draw specific uniform locations
     qrk::assets::Program q_3dDraw;
+    GLuint textureID;
+    GLuint texturedID;
 
     //misc variables
     qrk::glWindow *targetWindow;

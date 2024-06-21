@@ -332,6 +332,13 @@ qrk::obj qrk::GLObject::GetDrawData() {
     qrk::obj returnData;
     returnData.VAO = this->VAO;
     returnData.VBO = this->VBO;
+    if (textured) {
+        returnData.texture = this->texture;
+        returnData.textured = true;
+    } else {
+        returnData.texture = nullptr;
+        returnData.textured = false;
+    }
     returnData.vertexCount = this->objectData->vertexNumber;
     returnData.position = this->position;
     returnData.rotation = this->rotation;
