@@ -42,9 +42,9 @@ LRESULT qrk::glWindow::WndProcess(UINT message, WPARAM wParam, LPARAM lParam) {
     }
 }
 
-bool qrk::glWindow::Create(const std::string &windowName, qrk::vec2u size,
+bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
                            int windowStyle, int multisamplingLevel,
-                           qrk::Color resizeColor) {
+                           qrk::Color _clearColor) {
     windowClass.cbSize = sizeof(WNDCLASSEX);
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     windowClass.lpfnWndProc = Process;
@@ -54,17 +54,17 @@ bool qrk::glWindow::Create(const std::string &windowName, qrk::vec2u size,
     windowClass.hIcon = NULL;
     windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     windowClass.hbrBackground =
-            CreateSolidBrush(RGB(resizeColor.r, resizeColor.g, resizeColor.b));
+            CreateSolidBrush(RGB(_clearColor.r, _clearColor.g, _clearColor.b));
     windowClass.lpszMenuName = NULL;
-    std::string className = windowName + "-CLASS";
+    std::string className = _windowName + "-CLASS";
     windowClass.lpszClassName = className.c_str();
     windowClass.hIconSm = NULL;
     RegisterClassEx(&windowClass);
 
-    window =
-            CreateWindowExA(0, className.c_str(), windowName.c_str(),
-                            windowStyle, CW_USEDEFAULT, CW_USEDEFAULT, size.x(),
-                            size.y(), NULL, NULL, GetModuleHandleA(0), this);
+    window = CreateWindowExA(0, className.c_str(), _windowName.c_str(),
+                             windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
+                             _size.x(), _size.y(), NULL, NULL,
+                             GetModuleHandleA(0), this);
     if (window == NULL) {
         qrk::Debug::ShowErrorBox("Failed to create a window");
         qrk::Debug::LogError("Failed to create a window");
@@ -72,6 +72,8 @@ bool qrk::glWindow::Create(const std::string &windowName, qrk::vec2u size,
     }
     if (!CreateContext(multisamplingLevel)) throw std::exception();
     ShowWindow(window, SW_SHOW);
+    qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
+    glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
     return true;
 }
 
@@ -157,32 +159,23 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
                                   WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
                                   0};
 
-    const int pixelFormatAttributes[] = {WGL_DRAW_TO_WINDOW_ARB,
-                                         GL_TRUE,
+    const int pixelFormatAttributes[] = {WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
                                          //////////////////////
-                                         WGL_SUPPORT_OPENGL_ARB,
-                                         GL_TRUE,
+                                         WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
                                          //////////////////////
-                                         WGL_DOUBLE_BUFFER_ARB,
-                                         GL_TRUE,
+                                         WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
                                          //////////////////////
-                                         WGL_PIXEL_TYPE_ARB,
-                                         WGL_TYPE_RGBA_ARB,
+                                         WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
                                          //////////////////////
-                                         WGL_COLOR_BITS_ARB,
-                                         32,
+                                         WGL_COLOR_BITS_ARB, 32,
                                          //////////////////////
-                                         WGL_DEPTH_BITS_ARB,
-                                         24,
+                                         WGL_DEPTH_BITS_ARB, 24,
                                          //////////////////////
-                                         WGL_STENCIL_BITS_ARB,
-                                         8,
+                                         WGL_STENCIL_BITS_ARB, 8,
                                          //////////////////////
-                                         WGL_SAMPLE_BUFFERS_ARB,
-                                         1,
+                                         WGL_SAMPLE_BUFFERS_ARB, 1,
                                          //////////////////////
-                                         WGL_SAMPLES_ARB,
-                                         multisamplingLevel,
+                                         WGL_SAMPLES_ARB, multisamplingLevel,
                                          //////////////////////
                                          0};
     int msPixelFormat;

@@ -5,14 +5,14 @@
 #include "../include/color.hpp"
 #include "../include/draw.hpp"
 #include "../include/qrk_debug.hpp"
-#include "../include/vector.hpp"
 #include "../include/texture.hpp"
+#include "../include/vector.hpp"
 #include <Windows.h>
 #include <filesystem>
-#include <future>
-#include <string>
 #include <fstream>
+#include <future>
 #include <sstream>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -100,7 +100,8 @@ public:
     GLObject() = delete;
     GLObject(qrk::Object &_objectData)
         : objectData(&_objectData), position({0, 0, 0}), rotation({0, 0, 0}),
-          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
+          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}), texture(nullptr),
+          textured(false) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glBindVertexArray(VAO);

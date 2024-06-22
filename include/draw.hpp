@@ -4,9 +4,9 @@
 #include "../include/GL_assets.hpp"
 #include "../include/constants.hpp"
 #include "../include/matrix.hpp"
+#include "../include/texture.hpp"
 #include "../include/vector.hpp"
 #include "../include/window.hpp"
-#include "../include/texture.hpp"
 #include "glad/glad.h"
 #include <vector>
 
@@ -34,6 +34,14 @@ struct UniformData3D {
     qrk::mat4 view = identity4();
     qrk::mat4 projection = identity4();
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+};
+struct LightSource {
+public:
+    qrk::vec3f lightSourcePosition;
+private:
+    float idiot;
+public:
+    qrk::vec4f lightSourceColor;
 };
 
 struct settings {
@@ -89,13 +97,23 @@ public:
                                         "shaders/3d_fragment_shader.frag");
         textureID = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
         texturedID = glGetUniformLocation(q_3dDraw.programHandle, "textured");
-
+        //create the 3d UBO
         glGenBuffers(1, &UBO3D);
         glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), nullptr,
-                     GL_STATIC_DRAW);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData3D),
-                        &UBO3D_Data);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), &UBO3D_Data,
+                     GL_DYNAMIC_COPY);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
+
+        //create the light source SSBO
+        glGenBuffers(1, &lightSource_SSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,
+                     q_3dLightSources.size() * sizeof(LightSource), nullptr,
+                     GL_DYNAMIC_COPY);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0,
+                        q_3dLightSources.size() * sizeof(LightSource),
+                        q_3dLightSources.data());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, lightSource_SSBO);
     }
 
     ~Renderer() {}
@@ -112,24 +130,39 @@ public:
                 break;
         }
     }
+    void AddPointLightSource(const qrk::LightSource &lightSource) {
+        q_3dLightSources.push_back(lightSource);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,
+                     q_3dLightSources.size() * sizeof(LightSource),
+                     q_3dLightSources.data(), GL_DYNAMIC_COPY);
+    }
+    void RemovePointLightSource(size_t index) {
+        q_3dLightSources.erase(q_3dLightSources.begin() + index);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,
+                     q_3dLightSources.size() * sizeof(LightSource),
+                     q_3dLightSources.data(), GL_DYNAMIC_COPY);
+    }
 
     void Draw();
 
 private:
     //vectors containing draw queue
     std::vector<obj> q_3dObjects;
+    std::vector<LightSource> q_3dLightSources;
 
     //3d draw program, and associated 3d draw specific uniform locations
     qrk::assets::Program q_3dDraw;
+    qrk::UniformData3D UBO3D_Data;
+    GLuint UBO3D;
     GLuint textureID;
     GLuint texturedID;
+    GLuint lightSource_SSBO;
 
     //misc variables
     qrk::glWindow *targetWindow;
     qrk::settings *__settings;
-
-    qrk::UniformData3D UBO3D_Data;
-    GLuint UBO3D;
 };
 }// namespace qrk
 

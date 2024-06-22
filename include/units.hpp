@@ -53,8 +53,11 @@ const float lb = 453.592f;
 const float rad = 1.f;
 const float deg = 0.0174533f;
 //temperature
-const float celcius = 1.f;
+const float kelvin = 1.f;
+inline float ConvertToCelcius(float temp) { return temp - 273.15f; }
+inline float ConvertToFarenheit(float temp) { return (temp - 273.15f) * 1.8f + 32.f; }
 //work
+const float nW = 0.000000001f;
 const float uW = 0.000001f;
 const float mW = 0.001f;
 const float W = 1.f;
@@ -63,6 +66,7 @@ const float MW = 1000000.f;
 const float GW = 1000000000.f;
 const float hp = 745.7f;
 //pressure
+const float nPa = 0.000000001f;
 const float uPa = 0.000001f;
 const float mPa = 0.001f;
 const float Pa = 1.f;
@@ -71,7 +75,10 @@ const float MPa = 1000000.f;
 const float GPa = 1000000000.f;
 const float bar = 100000.f;
 const float atm = 101325.03982073f;
-const float lbPerSqInch = 6894.76f;
+const float psi = 6894.76f;
+//luminescence
+const float candela = 1.f;
+const float lumen = 0.07955449482f;
 }// namespace qrk::units
 
 #endif// !Q_UNITS

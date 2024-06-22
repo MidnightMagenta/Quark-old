@@ -15,8 +15,7 @@ add_library("${ProjectName}" STATIC
 	src/object.cpp
 	src/GL_assets.cpp
 	src/qrk_debug.cpp
-	src/draw.cpp
-	src/app_entry_point.cpp
+	src/draw.cpp	
 	src/image.cpp
 	src/texture.cpp
 
@@ -31,7 +30,6 @@ add_library("${ProjectName}" STATIC
 	include/draw.hpp
 	include/constants.hpp
 	include/units.hpp
-	include/app_entry_point.hpp
 	include/image.hpp
 	include/texture.hpp
 

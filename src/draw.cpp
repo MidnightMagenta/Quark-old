@@ -5,8 +5,9 @@ void qrk::Renderer::Draw() {
     if (!targetWindow->IsContextCurrent()) {
         targetWindow->MakeContextCurrent();
     }
-
-    glUseProgram(q_3dDraw.programHandle);
+    if (qrk::GetBoundProgram() != this->q_3dDraw.programHandle) {
+        this->q_3dDraw.UseProgram();
+    }
 
     float fov = 70.f * qrk::units::deg;
     if (this->__settings != nullptr) { fov = this->__settings->fov; }
@@ -15,6 +16,7 @@ void qrk::Renderer::Draw() {
             (float) targetWindow->GetSize().x() /
                     (float) targetWindow->GetSize().y(),
             1.f, 100.f);
+    UBO3D_Data.projection = projectionMatrix;
 
     for (int i = 0; i < q_3dObjects.size(); i++) {
         //generate draw data
@@ -33,7 +35,6 @@ void qrk::Renderer::Draw() {
         UBO3D_Data.position = transformMatrix;
         UBO3D_Data.rotation = rotationMatrix;
         UBO3D_Data.scale = scaleMatrix;
-        UBO3D_Data.projection = projectionMatrix;
         UBO3D_Data.view = identity;
         UBO3D_Data.color =
                 qrk::vec4f({q_3dObjects[i].color.r, q_3dObjects[i].color.g,
@@ -51,12 +52,11 @@ void qrk::Renderer::Draw() {
                         &UBO3D_Data);
         glUniformBlockBinding(q_3dDraw.programHandle,
                               q_3dDraw.uniformBlockIndex, 3);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
 
         glBindVertexArray(q_3dObjects[i].VAO);
         glBindBuffer(GL_ARRAY_BUFFER, q_3dObjects[i].VBO);
 
-        //move vertex attibutes to the shader
+        //generate pointers to vertex attributes
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) 0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),

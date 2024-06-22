@@ -25,15 +25,15 @@ class glWindow : GLTools {
 public:
     glWindow(const std::string &windowName, qrk::vec2u size, int windowStyle,
              int multisamplingLevel,
-             qrk::Color resizeColor = {255, 255, 255, 255})
+             qrk::Color _clearColor = {255, 255, 255, 255})
         : Open(true), windowSize(size) {
-        Create(windowName, size, windowStyle, multisamplingLevel, resizeColor);
+        Create(windowName, size, windowStyle, multisamplingLevel, _clearColor);
     }
     ~glWindow() {}
 
     bool Create(const std::string &windowName, qrk::vec2u size,
                 int windowStyle = Q_WINDOW_DEFAULT, int multisamplingLevel = 8,
-                qrk::Color resizeColor = {255, 255, 255, 255});
+                qrk::Color _clearColor = {255, 255, 255, 255});
     void Close() { PostQuitMessage(0); }
     void Activate() { SetActiveWindow(window); }
     bool CreateContext(int multisamplingLevel);
@@ -47,10 +47,10 @@ public:
         }
     }
     void MakeContextCurrent() { wglMakeCurrent(deviceContext, glContext); }
-    void Clear(qrk::Color color) {
-        qrk::ColorF fColor = qrk::ConvertToFloat(color);
+    void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    void ChangeClearColor(qrk::Color _clearColor) {
+        qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void SetSwapInterval(int interval) { wglSwapIntervalEXT(interval); }

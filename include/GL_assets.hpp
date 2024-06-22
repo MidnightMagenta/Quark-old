@@ -11,9 +11,12 @@
 #include <vector>
 
 namespace qrk::assets {
+
+inline GLuint boundProgramID = 0;
+
 class Program {
 public:
-    Program() : programHandle(NULL), uniformBlockIndex(NULL){}
+    Program() : programHandle(NULL), uniformBlockIndex(NULL) {}
     Program(std::string vertexPath, std::string fragmentPath) {
         programHandle = glCreateProgram();
         if (!Compile(vertexPath, fragmentPath)) {
@@ -27,6 +30,11 @@ public:
                 glGetUniformBlockIndex(programHandle, "uniformBlock");
     }
 
+    void UseProgram() {
+        glUseProgram(this->programHandle);
+        boundProgramID = this->programHandle;
+    }
+
     GLuint programHandle;
     GLuint uniformBlockIndex;
 
@@ -34,5 +42,8 @@ private:
     bool Compile(std::string vertexPath, std::string fragmentPath);
 };
 }// namespace qrk::assets
+namespace qrk {
+inline GLuint GetBoundProgram() { return qrk::assets::boundProgramID; }
+}// namespace qrk
 
 #endif// !QRK_GL_ASSETS
