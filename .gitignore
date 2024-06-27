@@ -16,3 +16,4 @@ out/
 /objects/materialTests/basicMaterial.txt
 /objects/monkey.obj
 /objects/UV_sphere.obj
+/objects/vertex_perf_test.obj
