@@ -5,10 +5,7 @@ void qrk::Object::LoadObjectAsync(
     //get data from file
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
-        std::string error = "Failed to open file: " + path;
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error("Failed to open file: " + path, 3);
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
@@ -73,35 +70,27 @@ void qrk::Object::LoadObjectAsync(
         !(object.vertexIndeces.size() == object.normalIndeces.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error(error, 4);
     }
     for (unsigned int element : object.vertexIndeces) {
         if (element > object.vertices.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (vertices)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 5);
         }
     }
     for (unsigned int element : object.textureIndeces) {
         if (element > object.textures.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (textures)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 6);
         }
     }
     for (unsigned int element : object.normalIndeces) {
         if (element > object.normals.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (normals)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 7);
         }
     }
 
@@ -121,9 +110,7 @@ void qrk::Object::LoadObjectAsync(
         !(alignedVertices.size() == alignedNormals.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error(error, 8);
     }
 
     std::vector<GLfloat> loadResult;
@@ -158,17 +145,12 @@ void qrk::Object::LoadObject(const std::string &path) {
     //get data from file
     if (!std::filesystem::exists(path)) {
         std::string error = "Failed to find file: " + path;
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
-        ;
+        qrk::Debug::Error(error, 3);
     }
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
         std::string error = "Failed to open file: " + path;
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error(error, 4);
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
@@ -232,35 +214,27 @@ void qrk::Object::LoadObject(const std::string &path) {
         !(object.vertexIndeces.size() == object.normalIndeces.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error(error, 5);
     }
     for (unsigned int element : object.vertexIndeces) {
         if (element > object.vertices.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (vertices)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 6);
         }
     }
     for (unsigned int element : object.textureIndeces) {
         if (element > object.textures.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (textures)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 7);
         }
     }
     for (unsigned int element : object.normalIndeces) {
         if (element > object.normals.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (normals)";
-            qrk::Debug::LogError(error);
-            MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-            throw std::exception();
+            qrk::Debug::Error(error, 8);
         }
     }
 
@@ -280,9 +254,7 @@ void qrk::Object::LoadObject(const std::string &path) {
         !(alignedVertices.size() == alignedNormals.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
-        qrk::Debug::LogError(error);
-        MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
-        throw std::exception();
+        qrk::Debug::Error(error, 15);
     }
 
     std::vector<GLfloat> loadResult;
@@ -340,9 +312,9 @@ qrk::obj qrk::GLObject::GetDrawData() {
         returnData.textured = false;
     }
     returnData.vertexCount = this->objectData->vertexNumber;
-    returnData.position = this->position;
-    returnData.rotation = this->rotation;
-    returnData.scale = this->scale;
+    returnData.position = this->posMatrix;
+    returnData.rotation = this->rotMatrix;
+    returnData.scale = this->sclMatrix;
     returnData.color = this->color;
     return returnData;
 }

@@ -4,9 +4,7 @@ void qrk::Image::LoadFromFile(const std::string &path) {
     this->imageData = stbi_load(path.c_str(), &this->width, &this->height,
                                 &this->channels, NULL);
     if (!imageData) {
-        qrk::Debug::LogError("Failed to load image: " + path);
-        qrk::Debug::ShowErrorBox("Failed to load image");
-        throw std::exception();
+        qrk::Debug::Error("Failed to load image: " + path, 9);
     }
 }
 
@@ -28,9 +26,7 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
     imageData = stbi_load(path.c_str(), &width, &height, &channels, NULL);
 
     if (!imageData) {
-        qrk::Debug::LogError("Failed to load image: " + path);
-        qrk::Debug::ShowErrorBox("Failed to load image");
-        throw std::exception();
+        qrk::Debug::Error("Failed to load image: " + path, 10);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -55,9 +51,7 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
                          GL_UNSIGNED_BYTE, imageData);
             break;
         default:
-            qrk::Debug::LogError("Invalid image channels: " + path);
-            qrk::Debug::ShowErrorBox("Invalid image channels");
-            throw std::exception();
+            qrk::Debug::Error("Invalid channel data", 11);
     }
     stbi_image_free(imageData);
 
@@ -100,9 +94,7 @@ void qrk::Texture2D::LoadFromImage(qrk::Image &image,
                          0, GL_RGBA, GL_UNSIGNED_BYTE, image.imageData);
             break;
         default:
-            qrk::Debug::LogError("Invalid image channels");
-            qrk::Debug::ShowErrorBox("Invalid image channels");
-            throw std::exception();
+            qrk::Debug::Error("Invalid channel data", 11);
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_s);

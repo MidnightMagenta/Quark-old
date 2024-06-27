@@ -18,6 +18,7 @@ add_library("${ProjectName}" STATIC
 	src/draw.cpp	
 	src/image.cpp
 	src/texture.cpp
+	src/event.cpp
 
 	#header files
 	include/window.hpp
@@ -32,6 +33,7 @@ add_library("${ProjectName}" STATIC
 	include/units.hpp
 	include/image.hpp
 	include/texture.hpp
+	include/event.hpp
 
 	#dependencies
 	dependencies/OpenGL.h

@@ -65,12 +65,10 @@ bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
                              windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
                              _size.x(), _size.y(), NULL, NULL,
                              GetModuleHandleA(0), this);
-    if (window == NULL) {
-        qrk::Debug::ShowErrorBox("Failed to create a window");
-        qrk::Debug::LogError("Failed to create a window");
-        throw std::exception();
+    if (window == NULL) { qrk::Debug::Error("Failed to create a window", 12); }
+    if (!CreateContext(multisamplingLevel)) {
+        qrk::Debug::Error("Failed to create context", 13);
     }
-    if (!CreateContext(multisamplingLevel)) throw std::exception();
     ShowWindow(window, SW_SHOW);
     qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
     glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);

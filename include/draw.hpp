@@ -1,6 +1,9 @@
 #ifndef Q_DRAW
 #define Q_DRAW
 
+#define Q_POINT 0
+#define Q_DIRECTIONAL 1
+
 #include "../include/GL_assets.hpp"
 #include "../include/constants.hpp"
 #include "../include/matrix.hpp"
@@ -11,8 +14,6 @@
 #include <vector>
 
 namespace qrk {
-enum class DrawTarget { Q_3D_DRAW, Q_2D_DRAW };
-
 struct obj {
     GLuint VAO = 0;
     GLuint VBO = 0;
@@ -21,12 +22,18 @@ struct obj {
 
     GLsizei vertexCount = 0;
 
-    vec3f position = qrk::vec3f({0.f, 0.f, 0.f});
-    vec3f rotation = qrk::vec3f({0.f, 0.f, 0.f});
-    vec3f scale = qrk::vec3f({1.f, 1.f, 1.f});
+    mat4 position = qrk::identity4();
+    mat4 rotation = qrk::identity4();
+    mat4 scale = qrk::identity4();
     ColorF color = qrk::ColorF(1.f, 1.f, 1.f, 1.f);
 };
-
+struct Material {
+    float shininess = 25.f;
+    char padding[12];
+    vec3f specular = qrk::vec3f({0.5f, 0.5f, 0.5f});
+    vec3f diffuse = qrk::vec3f({0.8f, 0.8f, 0.8f});
+    vec3f ambient = qrk::vec3f({1.f, 1.f, 1.f});
+};
 struct UniformData3D {
     qrk::mat4 position = identity4();
     qrk::mat4 rotation = identity4();
@@ -34,14 +41,46 @@ struct UniformData3D {
     qrk::mat4 view = identity4();
     qrk::mat4 projection = identity4();
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+    qrk::vec4f cameraPosition = qrk::vec4f({0, 0, 0, 0});
+    Material material;
 };
 struct LightSource {
-public:
-    qrk::vec3f lightSourcePosition;
-private:
-    float idiot;
-public:
-    qrk::vec4f lightSourceColor;
+    LightSource() {
+        position = qrk::vec3f({0.f, 0.f, 0.f});
+        lightType = Q_POINT;
+
+        constant = 0.f;
+        linear = 1.f;
+        quadratic = 0.f;
+
+        ambient = qrk::vec3f({0.1f, 0.1f, 0.1f});
+        diffuse = qrk::vec3f({1.f, 1.f, 1.f});
+        specular = qrk::vec3f({0.3f, 0.3f, 0.3f});
+    }
+    LightSource(qrk::vec3f _position, qrk::Color color) {
+        position = _position;
+        lightType = Q_POINT;
+
+        constant = 0.f;
+        linear = 1.f;
+        quadratic = 0.f;
+
+        qrk::ColorF cf = qrk::ConvertToFloat(color);
+        ambient = qrk::vec3f({cf.r * 0.1f, cf.g * 0.1f, cf.b * 0.1f});
+        diffuse = qrk::vec3f({cf.r, cf.g, cf.b});
+        specular = qrk::vec3f({cf.r * 0.3f, cf.g * 0.3f, cf.b * 0.3f});
+    }
+
+    int lightType;
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3f position;
+
+    vec3f ambient;
+    vec3f diffuse;
+    vec3f specular;
 };
 
 struct settings {
@@ -52,90 +91,20 @@ struct settings {
     float fov = 70 * qrk::units::deg;
 };
 
-class Renderer {
+class qb_GL_Renderer {
 public:
-    Renderer(qrk::glWindow &_targetWindow, qrk::settings *_settings = nullptr)
-        : targetWindow(&_targetWindow), __settings(_settings) {
+    qb_GL_Renderer() = delete;
+    qb_GL_Renderer(qrk::glWindow &_targetWindow, qrk::settings *_settings = nullptr);
+    ~qb_GL_Renderer() {}
 
-        if (_settings != nullptr) {
-            if (_settings->depthTest == true) {
-                glEnable(GL_DEPTH_TEST);
-                glDepthFunc(GL_LESS);
-            } else {
-                glDisable(GL_DEPTH_TEST);
-            }
-            if (_settings->cullFaces == true) {
-                glEnable(GL_CULL_FACE);
-                glCullFace(GL_BACK);
-            } else {
-                glDisable(GL_CULL_FACE);
-            }
-            if (_settings->alpha == true) {
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            } else {
-                glDisable(GL_BLEND);
-            }
-            if (_settings->multisample == true) {
-                glEnable(GL_MULTISAMPLE);
-                glSampleCoverage(1, GL_FALSE);
-            } else {
-                glDisable(GL_MULTISAMPLE);
-            }
-        } else {
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_MULTISAMPLE);
-            glSampleCoverage(1, GL_FALSE);
-        }
-
-        q_3dDraw = qrk::assets::Program("shaders/3d_vertex_shader.vert",
-                                        "shaders/3d_fragment_shader.frag");
-        textureID = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
-        texturedID = glGetUniformLocation(q_3dDraw.programHandle, "textured");
-        //create the 3d UBO
-        glGenBuffers(1, &UBO3D);
-        glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), &UBO3D_Data,
-                     GL_DYNAMIC_COPY);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
-
-        //create the light source SSBO
-        glGenBuffers(1, &lightSource_SSBO);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,
-                     q_3dLightSources.size() * sizeof(LightSource), nullptr,
-                     GL_DYNAMIC_COPY);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0,
-                        q_3dLightSources.size() * sizeof(LightSource),
-                        q_3dLightSources.data());
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, lightSource_SSBO);
-    }
-
-    ~Renderer() {}
-
-    void QueueDraw(const obj &drawData, DrawTarget target) {
-        switch (target) {
-            case qrk::DrawTarget::Q_3D_DRAW:
-                q_3dObjects.push_back(drawData);
-                break;
-            case qrk::DrawTarget::Q_2D_DRAW:
-                //temporairly empty until 2d draw logic is done
-                break;
-            default:
-                break;
-        }
-    }
+    void Queue3dDraw(const obj &drawData) { q_3dObjects.push_back(drawData); }
     void AddPointLightSource(const qrk::LightSource &lightSource) {
         q_3dLightSources.push_back(lightSource);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
                      q_3dLightSources.size() * sizeof(LightSource),
                      q_3dLightSources.data(), GL_DYNAMIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
     void RemovePointLightSource(size_t index) {
         q_3dLightSources.erase(q_3dLightSources.begin() + index);
@@ -143,6 +112,7 @@ public:
         glBufferData(GL_SHADER_STORAGE_BUFFER,
                      q_3dLightSources.size() * sizeof(LightSource),
                      q_3dLightSources.data(), GL_DYNAMIC_COPY);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
     void Draw();

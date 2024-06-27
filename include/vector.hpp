@@ -90,7 +90,7 @@ public:
 template<typename t_vector>
 class Vector<t_vector, 2> {
 public:
-    Vector() : data{} {};
+    Vector() : data{}, padding(NULL){};
     Vector(const std::array<t_vector, 2> &_vector) { CreateVector(_vector); }
     void CreateVector(const std::array<t_vector, 2> &_vector) {
         if (_vector.size() == data.size())
@@ -162,6 +162,10 @@ public:
 
     std::array<t_vector, 2> data;
 
+private:
+    char padding[sizeof(t_vector) * 2];
+
+public:
     inline t_vector &x() { return data[0]; }
     inline t_vector &y() { return data[1]; }
 };
@@ -170,7 +174,7 @@ public:
 template<typename t_vector>
 class Vector<t_vector, 3> {
 public:
-    Vector() : data{} {};
+    Vector() : data{}, padding(NULL) {};
     Vector(const std::array<t_vector, 3> &_vector) { CreateVector(_vector); }
     void CreateVector(const std::array<t_vector, 3> &_vector) {
         if (_vector.size() == data.size())
@@ -242,6 +246,10 @@ public:
 
     std::array<t_vector, 3> data;
 
+private:
+    char padding[sizeof(t_vector)];
+
+public:
     inline t_vector &x() { return data[0]; }
     inline t_vector &y() { return data[1]; }
     inline t_vector &z() { return data[2]; }
