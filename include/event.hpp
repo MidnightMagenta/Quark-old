@@ -98,8 +98,7 @@ enum KEY {
     ALT = 0x12
 };
 
-enum MOUSE
-{
+enum MOUSE {
     L_BUTTON = 0x01,
     R_BUTTON = 0x02,
     M_BUTTON = 0x04,
@@ -110,7 +109,8 @@ enum MOUSE
 class Event {
 public:
     Event() = delete;
-    Event(qrk::glWindow &window) : targetWindow(&window), lastMessage(window.GetWindowMessage()) {}
+    Event(qrk::glWindow &window)
+        : targetWindow(&window), lastMessage(window.GetWindowMessage()) {}
     void UpdateWindow() { lastMessage = targetWindow->GetWindowMessage(); }
     bool KeyPressed(qrk::KEY key);
 

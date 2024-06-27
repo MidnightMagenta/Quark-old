@@ -3,9 +3,7 @@
 void qrk::Image::LoadFromFile(const std::string &path) {
     this->imageData = stbi_load(path.c_str(), &this->width, &this->height,
                                 &this->channels, NULL);
-    if (!imageData) {
-        qrk::Debug::Error("Failed to load image: " + path, 9);
-    }
+    if (!imageData) { qrk::Debug::Error("Failed to load image: " + path, 9); }
 }
 
 void qrk::Texture2D::LoadFromFile(const std::string &path,
@@ -25,9 +23,7 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
     int width, height, channels;
     imageData = stbi_load(path.c_str(), &width, &height, &channels, NULL);
 
-    if (!imageData) {
-        qrk::Debug::Error("Failed to load image: " + path, 10);
-    }
+    if (!imageData) { qrk::Debug::Error("Failed to load image: " + path, 10); }
 
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &this->texture);
