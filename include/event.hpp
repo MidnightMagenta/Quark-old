@@ -2,6 +2,7 @@
 #define Q_EVENT
 
 #include "../include/window.hpp"
+#include <windowsx.h>
 
 namespace qrk {
 enum KEY {
@@ -110,13 +111,17 @@ class Event {
 public:
     Event() = delete;
     Event(qrk::glWindow &window)
-        : targetWindow(&window), lastMessage(window.GetWindowMessage()) {}
+        : targetWindow(&window), lastMessage(window.GetWindowMessage()),
+          mousePosition({0, 0}) {}
     void UpdateWindow() { lastMessage = targetWindow->GetWindowMessage(); }
     bool KeyPressed(qrk::KEY key);
+    qrk::vec2i GetMousePosition();
 
 private:
     qrk::glWindow *targetWindow;
     MSG lastMessage;
+
+    qrk::vec2i mousePosition;
 };
 }// namespace qrk
 
