@@ -3,16 +3,19 @@
 void qrk::Image::LoadFromFile(const std::string &path) {
     this->imageData = stbi_load(path.c_str(), &this->width, &this->height,
                                 &this->channels, NULL);
-    if (!imageData) { qrk::Debug::Error("Failed to load image: " + path, 9); }
+    if (!imageData) {
+        qrk::debug::Error("Failed to load image: " + path,
+                          qrk::debug::Q_FAILED_TO_LOAD_IMAGE);
+    }
 }
 
 void qrk::Texture2D::LoadFromFile(const std::string &path,
                                   const qrk::Texture2DSettings &settings) {
     if (this->texture != 0) {
-        qrk::Debug::LogWarning("Binding texture to an existing texture object "
+        qrk::debug::LogWarning("Binding texture to an existing texture object "
                                "without explicitly deleting the object");
 #ifdef _DEBUG
-        qrk::Debug::ShowWarningBox(
+        qrk::debug::ShowWarningBox(
                 "Binding texture to an existing texture object without "
                 "explicitly deleting the object");
 #endif// _DEBUG
@@ -23,7 +26,7 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
     int width, height, channels;
     imageData = stbi_load(path.c_str(), &width, &height, &channels, NULL);
 
-    if (!imageData) { qrk::Debug::Error("Failed to load image: " + path, 10); }
+    if (!imageData) { qrk::debug::Error("Failed to load image: " + path, 10); }
 
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &this->texture);
@@ -47,7 +50,8 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
                          GL_UNSIGNED_BYTE, imageData);
             break;
         default:
-            qrk::Debug::Error("Invalid channel data", 11);
+            qrk::debug::Error("Invalid channel data",
+                              qrk::debug::Q_FAILED_TO_LOAD_IMAGE);
     }
     stbi_image_free(imageData);
 
@@ -59,10 +63,10 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
 void qrk::Texture2D::LoadFromImage(qrk::Image &image,
                                    const qrk::Texture2DSettings &settings) {
     if (this->texture != 0) {
-        qrk::Debug::LogWarning("Binding texture to an existing texture object "
+        qrk::debug::LogWarning("Binding texture to an existing texture object "
                                "without explicitly deleting the object");
 #ifdef _DEBUG
-        qrk::Debug::ShowWarningBox(
+        qrk::debug::ShowWarningBox(
                 "Binding texture to an existing texture object without "
                 "explicitly deleting the object");
 #endif// _DEBUG
@@ -90,7 +94,8 @@ void qrk::Texture2D::LoadFromImage(qrk::Image &image,
                          0, GL_RGBA, GL_UNSIGNED_BYTE, image.imageData);
             break;
         default:
-            qrk::Debug::Error("Invalid channel data", 11);
+            qrk::debug::Error("Invalid channel data",
+                              qrk::debug::Q_FAILED_TO_LOAD_IMAGE);
     }
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_s);

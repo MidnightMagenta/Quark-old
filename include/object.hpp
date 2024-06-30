@@ -23,7 +23,8 @@ public:
     Object(const std::string &path, bool async = true)
         : loadFinished(false), asyncLoad(async), vertexNumber(NULL) {
         if (!std::filesystem::exists(path)) {
-            qrk::Debug::Error("Failed to find file: " + path, 2);
+            qrk::debug::Error("Failed to find file: " + path,
+                              qrk::debug::Q_FAILED_TO_FIND_FILE);
         }
         if (async) {
             _path = path;
@@ -96,19 +97,37 @@ class GLObject {
 public:
     GLObject() = delete;
     GLObject(qrk::Object &_objectData)
-        : objectData(&_objectData), position({0, 0, 0}), rotation({0, 0, 0}),
-          scale({1, 1, 1}), color({1.f, 1.f, 1.f, 1.f}), texture(nullptr),
-          textured(false) {
+        : position({0, 0, 0}), rotation({0, 0, 0}), scale({1, 1, 1}),
+          color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, objectData->data.size() * sizeof(GLfloat),
-                     objectData->data.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, _objectData.data.size() * sizeof(GLfloat),
+                     _objectData.data.data(), GL_STATIC_DRAW);
+        vertexNumber = _objectData.vertexNumber;
         qrk::mat4 identity = identity4();
         posMatrix = identity;
         rotMatrix = identity;
         sclMatrix = identity;
+    }
+
+    GLObject(const std::string &objectPath)
+        : position({0, 0, 0}), rotation({0, 0, 0}), scale({1, 1, 1}),
+          color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
+        qrk::Object _objectData(objectPath, false);
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, _objectData.data.size() * sizeof(GLfloat),
+                     _objectData.data.data(), GL_STATIC_DRAW);
+        vertexNumber = _objectData.vertexNumber;
+        qrk::mat4 identity = identity4();
+        posMatrix = identity;
+        rotMatrix = identity;
+        sclMatrix = identity;
+        _objectData.DeleteData();
     }
 
     void SetPosition(float x, float y, float z) {
@@ -144,12 +163,12 @@ public:
     qrk::obj GetDrawData();
 
 private:
-    qrk::Object *objectData;
     qrk::Texture2D *texture;
     bool textured;
 
     GLuint VAO;
     GLuint VBO;
+    GLsizei vertexNumber;
 
     qrk::vec3f position;
     qrk::vec3f rotation;

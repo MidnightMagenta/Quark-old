@@ -116,6 +116,8 @@ public:
     void UpdateWindow() { lastMessage = targetWindow->GetWindowMessage(); }
     bool KeyPressed(qrk::KEY key);
     qrk::vec2i GetMousePosition();
+    qrk::vec2i GetAbsoluteMousePosition();
+    qrk::vec2i GetRelativeMousePosition();
 
 private:
     qrk::glWindow *targetWindow;

@@ -1,11 +1,12 @@
 #include <../include/draw.hpp>
+#include <../include/event.hpp>
 #include <../include/object.hpp>
 #include <../include/units.hpp>
 #include <../include/window.hpp>
-#include <../include/event.hpp>
 #include <iostream>
 
 //define entry point of the application
+void TestFunc(qrk::vec2i num) { std::cout << num.x() << " " << num.y() << std::endl; }
 int run() {
     qrk::glWindow wnd("Planet-Demo",
                       qrk::vec2u({(unsigned int) 800, (unsigned int) 800}),
@@ -13,13 +14,13 @@ int run() {
     wnd.MakeContextCurrent();
     wnd.SetSwapInterval(1);
     qrk::Object obj("objects/smooth_uv_sphere.obj");
-    wnd.ChangeClearColor(qrk::Q_COLOR::RED);
+    wnd.SetClearColor(qrk::Q_COLOR::RED);
     while (obj.WaitForLoad()) {
         wnd.GetWindowMessage();
         wnd.Clear();
         wnd.SwapWindowBuffers();
     }
-    wnd.ChangeClearColor({10, 10, 10, 255});
+    wnd.SetClearColor({10, 10, 10, 255});
     qrk::Texture2D texture("textures/testTexture.png");
     qrk::Texture2D texture2("textures/mercury.jpg", qrk::Texture2DSettings{});
     qrk::settings stng;
@@ -40,13 +41,16 @@ int run() {
     ls.position = qrk::vec3f({3.f, 5.f, 0.f});
     render.AddPointLightSource(ls);
 
-    qrk::Debug::FrameCounter fc_d;
+    qrk::debug::FrameCounter fc_d;
     int fc = 0;
     int fc2 = 0;
     int fb = 10;
     qrk::Event e(wnd);
     while (wnd.IsOpen()) {
         e.UpdateWindow();
+        if (e.KeyPressed(qrk::ESCAPE)) {
+            wnd.Close();
+        }
         wnd.Clear();
 
         sun.SetRotation(180 * qrk::units::deg, -fc * qrk::units::deg * 0.4f, 0);
@@ -65,7 +69,7 @@ int run() {
         fc2++;
         if (fc2 >= fb) {
             std::cout << fc_d.GetFrameRate() * fb << " FPS     " << std::endl;
-            qrk::Debug::set_cursor(0, 0);
+            qrk::debug::set_cursor(0, 0);
             fc2 = 0;
         }
     }

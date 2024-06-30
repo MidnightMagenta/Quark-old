@@ -20,10 +20,10 @@ public:
     Program(std::string vertexPath, std::string fragmentPath) {
         programHandle = glCreateProgram();
         if (!Compile(vertexPath, fragmentPath)) {
-            qrk::Debug::Error(
+            qrk::debug::Error(
                     "Failed to compile shader. Vertex path: " + vertexPath +
                             " Fragment shader: " + fragmentPath,
-                    1);
+                    qrk::debug::Q_FAILED_TO_COMPILE_SHADER);
         }
         glUseProgram(programHandle);
         uniformBlockIndex =

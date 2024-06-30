@@ -4,14 +4,14 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
                                    std::string fragmentPath) {
     if (!std::filesystem::exists(vertexPath)) {
         std::string error = "Invalid vertex shader path: " + vertexPath;
-        qrk::Debug::LogError(error);
-        qrk::Debug::ShowErrorBox(error);
+        qrk::debug::LogError(error);
+        qrk::debug::ShowErrorBox(error);
         return false;
     }
     if (!std::filesystem::exists(fragmentPath)) {
         std::string error = "Invalid fragment shader path: " + fragmentPath;
-        qrk::Debug::LogError(error);
-        qrk::Debug::ShowErrorBox(error);
+        qrk::debug::LogError(error);
+        qrk::debug::ShowErrorBox(error);
         return false;
     }
 
@@ -56,8 +56,8 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         glGetShaderInfoLog(vertexShader, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to compile vertex shader: " << message;
-        qrk::Debug::LogError(error.str());
-        qrk::Debug::ShowErrorBox(error.str());
+        qrk::debug::LogError(error.str());
+        qrk::debug::ShowErrorBox(error.str());
         return false;
     }
 
@@ -68,8 +68,8 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         glGetShaderInfoLog(vertexShader, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to compile vertex shader: " << message;
-        qrk::Debug::LogError(error.str());
-        qrk::Debug::ShowErrorBox(error.str());
+        qrk::debug::LogError(error.str());
+        qrk::debug::ShowErrorBox(error.str());
         return false;
     }
 
@@ -80,8 +80,8 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         glGetShaderInfoLog(fragmentShader, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to compile fragment shader: " << message;
-        qrk::Debug::LogError(error.str());
-        qrk::Debug::ShowErrorBox(error.str());
+        qrk::debug::LogError(error.str());
+        qrk::debug::ShowErrorBox(error.str());
         return false;
     }
 
@@ -92,8 +92,8 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         glGetShaderInfoLog(fragmentShader, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to compile fragment shader: " << message;
-        qrk::Debug::LogError(error.str());
-        qrk::Debug::ShowErrorBox(error.str());
+        qrk::debug::LogError(error.str());
+        qrk::debug::ShowErrorBox(error.str());
         return false;
     }
 
@@ -108,8 +108,8 @@ bool qrk::assets::Program::Compile(std::string vertexPath,
         glGetProgramInfoLog(programHandle, 1024, &log_length, message);
         std::stringstream error;
         error << "Failed to link program: " << message;
-        qrk::Debug::LogError(error.str());
-        qrk::Debug::ShowErrorBox(error.str());
+        qrk::debug::LogError(error.str());
+        qrk::debug::ShowErrorBox(error.str());
         return false;
     }
 

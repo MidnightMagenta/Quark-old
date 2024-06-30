@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <string>
+#include <windowsx.h>
 
 #define Q_WINDOW_DEFAULT WS_OVERLAPPEDWINDOW
 #define Q_WINDOW_NONRESIZABLE WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU
@@ -26,7 +27,7 @@ public:
     glWindow(const std::string &windowName, qrk::vec2u size, int windowStyle,
              int multisamplingLevel,
              qrk::Color _clearColor = {255, 255, 255, 255})
-        : Open(true), windowSize(size) {
+        : Open(true), windowSize(size), mouseMovedCallback(nullptr) {
         Create(windowName, size, windowStyle, multisamplingLevel, _clearColor);
     }
     ~glWindow() {}
@@ -34,7 +35,11 @@ public:
     bool Create(const std::string &windowName, qrk::vec2u size,
                 int windowStyle = Q_WINDOW_DEFAULT, int multisamplingLevel = 8,
                 qrk::Color _clearColor = {255, 255, 255, 255});
-    void Close() { PostQuitMessage(0); }
+    void Close() {
+        wglDeleteContext(this->glContext);
+        DestroyWindow(this->window);
+        this->Open = false;
+    }
     void Activate() { SetActiveWindow(window); }
     bool CreateContext(int multisamplingLevel);
 
@@ -48,7 +53,7 @@ public:
     }
     void MakeContextCurrent() { wglMakeCurrent(deviceContext, glContext); }
     void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-    void ChangeClearColor(qrk::Color _clearColor) {
+    void SetClearColor(qrk::Color _clearColor) {
         qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
     }
@@ -66,13 +71,15 @@ public:
     }
 
     //get and set window parameters
+    void q_HideCursor() { ShowCursor(FALSE); }
+    void q_ShowCursor() { ShowCursor(TRUE); }
     qrk::vec2u GetSize() {
         RECT windowRect;
         if (!GetWindowRect(window, &windowRect)) {
-            std::string error = "Could not retrieve window size information: " +
+            std::string error = "Could not retrieve window size information. Error code: " +
                                 std::to_string(GetLastError());
-            qrk::Debug::ShowErrorBox(error);
-            qrk::Debug::LogError(error);
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
             return qrk::vec2u({0, 0});
         }
         return qrk::vec2u(
@@ -83,8 +90,8 @@ public:
         if (!SetWindowPos(window, HWND_TOP, 0, 0, newSize.x(), newSize.y(),
                           SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOACTIVATE)) {
             std::string error = std::to_string(GetLastError());
-            qrk::Debug::ShowErrorBox(error);
-            qrk::Debug::LogError(error);
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
         }
     }
 
@@ -93,8 +100,8 @@ public:
         if (!GetWindowRect(window, &windowRect)) {
             std::string error = "Could not retrieve window size information: " +
                                 std::to_string(GetLastError());
-            qrk::Debug::ShowErrorBox(error);
-            qrk::Debug::LogError(error);
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
             return qrk::vec2u({0, 0});
         }
         return qrk::vec2u({(unsigned int) (windowRect.left),
@@ -104,9 +111,16 @@ public:
         if (!SetWindowPos(window, HWND_TOP, 0, 0, newPos.x(), newPos.y(),
                           SWP_NOSIZE | SWP_NOREPOSITION | SWP_NOACTIVATE)) {
             std::string error = std::to_string(GetLastError());
-            qrk::Debug::ShowErrorBox(error);
-            qrk::Debug::LogError(error);
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
         }
+    }
+    HWND GetNativeWindowHandle() { return this->window; }
+    HDC GetNativeDeviceContextHandle() { return this->deviceContext; }
+    HGLRC GetNativeContextHandle() { return this->glContext; }
+
+    void SetMouseMovedCallback(void (*callback)(qrk::vec2i mousePosition)) {
+        this->mouseMovedCallback = callback;
     }
 
 protected:
@@ -117,6 +131,9 @@ protected:
 
     qrk::vec2u windowSize;
     bool Open;
+
+    //callback functions
+    void (*mouseMovedCallback)(qrk::vec2i mousePosition);
 
     static LRESULT CALLBACK Process(HWND hwnd, UINT uMsg, WPARAM wParam,
                                     LPARAM lParam);

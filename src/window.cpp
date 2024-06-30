@@ -29,17 +29,24 @@ LRESULT qrk::glWindow::WndProcess(UINT message, WPARAM wParam, LPARAM lParam) {
                 glViewport(0, 0, size.x(), size.y());
                 this->windowSize = size;
             }
-            return DefWindowProc(this->window, message, wParam, lParam);
+            break;
         case WM_CLOSE:
             DestroyWindow(this->window);
             this->Open = false;
             return NULL;
         case WM_ACTIVATE:
             if (wParam == WA_CLICKACTIVE) { MakeContextCurrent(); }
-            return DefWindowProc(this->window, message, wParam, lParam);
+            break;
+        case WM_MOUSEMOVE:
+            if (mouseMovedCallback != nullptr) {
+                mouseMovedCallback(qrk::vec2i(
+                        {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)}));
+            }
+            break;
         default:
-            return DefWindowProc(this->window, message, wParam, lParam);
+            break;
     }
+    return DefWindowProc(this->window, message, wParam, lParam);
 }
 
 bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
@@ -65,9 +72,13 @@ bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
                              windowStyle, CW_USEDEFAULT, CW_USEDEFAULT,
                              _size.x(), _size.y(), NULL, NULL,
                              GetModuleHandleA(0), this);
-    if (window == NULL) { qrk::Debug::Error("Failed to create a window", 12); }
+    if (window == NULL) {
+        qrk::debug::Error("Failed to create a window",
+                          qrk::debug::Q_FAILED_TO_CREATE_WINDOW);
+    }
     if (!CreateContext(multisamplingLevel)) {
-        qrk::Debug::Error("Failed to create context", 13);
+        qrk::debug::Error("Failed to create context",
+                          qrk::debug::Q_FAILED_TO_CREATE_CONTEXT);
     }
     ShowWindow(window, SW_SHOW);
     qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
@@ -97,8 +108,8 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
             CreateWindowExW(0, L"DUMMY_WINDOW", L"DUMMY_WINDOW", 0, 0, 0, 0, 0,
                             0, 0, GetModuleHandleA(0), 0);
     if (dummyWindow == NULL) {
-        qrk::Debug::ShowErrorBox("Failed to create dummy window");
-        qrk::Debug::LogError("Failed to create dummy window");
+        qrk::debug::ShowErrorBox("Failed to create dummy window");
+        qrk::debug::LogError("Failed to create dummy window");
         return false;
     }
     HDC dummyDeviceHandle = GetDC(dummyWindow);
@@ -135,14 +146,14 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
     SetPixelFormat(dummyDeviceHandle, pixelFormat, &pfd);
     HGLRC dummyContext = wglCreateContext(dummyDeviceHandle);
     if (dummyContext == nullptr) {
-        qrk::Debug::ShowErrorBox("Failed to create dummy context");
-        qrk::Debug::LogError("Failed to create dummy context");
+        qrk::debug::ShowErrorBox("Failed to create dummy context");
+        qrk::debug::LogError("Failed to create dummy context");
         return false;
     }
 
     if (!wglMakeCurrent(dummyDeviceHandle, dummyContext)) {
-        qrk::Debug::ShowErrorBox("Failed to make dummy context current");
-        qrk::Debug::LogError("Failed to make dummy context current");
+        qrk::debug::ShowErrorBox("Failed to make dummy context current");
+        qrk::debug::LogError("Failed to make dummy context current");
         return false;
     }
 
@@ -182,15 +193,15 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
 
     if (!wglChoosePixelFormatARB(deviceContext, pixelFormatAttributes, NULL, 1,
                                  &msPixelFormat, &numFormats)) {
-        qrk::Debug::ShowErrorBox("Failed to create modernGl context (PF)");
-        qrk::Debug::LogError("Failed to create modernGl context (PF)");
+        qrk::debug::ShowErrorBox("Failed to create modernGl context (PF)");
+        qrk::debug::LogError("Failed to create modernGl context (PF)");
         return false;
     }
     SetPixelFormat(deviceContext, msPixelFormat, &pfd);
     glContext = wglCreateContextAttribsARB(deviceContext, 0, contextAttribs);
     if (glContext == 0) {
-        qrk::Debug::ShowErrorBox("Failed to create modernGl context");
-        qrk::Debug::LogError("Failed to create modernGl context");
+        qrk::debug::ShowErrorBox("Failed to create modernGl context");
+        qrk::debug::LogError("Failed to create modernGl context");
         return false;
     }
     //clean up
@@ -200,14 +211,14 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
     DestroyWindow(dummyWindow);
 
     if (!wglMakeCurrent(deviceContext, glContext)) {
-        qrk::Debug::ShowErrorBox("Failed to make modernGl context current");
-        qrk::Debug::LogError("Failed to make modernGl context current");
+        qrk::debug::ShowErrorBox("Failed to make modernGl context current");
+        qrk::debug::LogError("Failed to make modernGl context current");
         return false;
     }
 
     if (!gladLoadGL()) {
-        qrk::Debug::ShowErrorBox("Could not initialize GLAD");
-        qrk::Debug::LogError("Could not initialize GLAD");
+        qrk::debug::ShowErrorBox("Could not initialize GLAD");
+        qrk::debug::LogError("Could not initialize GLAD");
         return false;
     }
     return true;
@@ -223,10 +234,8 @@ void qrk::glWindow::LoadContextCreationTools() {
     wglSwapIntervalEXT =
             (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
     if (wglCreateContextAttribsARB == nullptr ||
-        wglChoosePixelFormatARB == nullptr) {
-        MessageBox(0, "Failed to load context creation tools", "Error", 0);
-        qrk::Debug::ShowErrorBox("Failed to load context creation tools");
-        qrk::Debug::LogError("Failed to load context creation tools");
-        throw;
+        wglChoosePixelFormatARB == nullptr || wglSwapIntervalEXT == nullptr) {
+        qrk::debug::Error("Failed to load context creation tools",
+                          qrk::debug::Q_FAILED_TO_CREATE_CONTEXT);
     }
 }

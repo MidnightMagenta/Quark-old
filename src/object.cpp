@@ -5,7 +5,8 @@ void qrk::Object::LoadObjectAsync(
     //get data from file
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
-        qrk::Debug::Error("Failed to open file: " + path, 3);
+        qrk::debug::Error("Failed to open file: " + path,
+                          qrk::debug::Q_FAILED_TO_FIND_FILE);
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
@@ -70,27 +71,27 @@ void qrk::Object::LoadObjectAsync(
         !(object.vertexIndeces.size() == object.normalIndeces.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
-        qrk::Debug::Error(error, 4);
+        qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
     }
     for (unsigned int element : object.vertexIndeces) {
         if (element > object.vertices.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (vertices)";
-            qrk::Debug::Error(error, 5);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
     for (unsigned int element : object.textureIndeces) {
         if (element > object.textures.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (textures)";
-            qrk::Debug::Error(error, 6);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
     for (unsigned int element : object.normalIndeces) {
         if (element > object.normals.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (normals)";
-            qrk::Debug::Error(error, 7);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
 
@@ -110,7 +111,7 @@ void qrk::Object::LoadObjectAsync(
         !(alignedVertices.size() == alignedNormals.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
-        qrk::Debug::Error(error, 8);
+        qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
     }
 
     std::vector<GLfloat> loadResult;
@@ -145,12 +146,12 @@ void qrk::Object::LoadObject(const std::string &path) {
     //get data from file
     if (!std::filesystem::exists(path)) {
         std::string error = "Failed to find file: " + path;
-        qrk::Debug::Error(error, 3);
+        qrk::debug::Error(error, qrk::debug::Q_FAILED_TO_FIND_FILE);
     }
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
         std::string error = "Failed to open file: " + path;
-        qrk::Debug::Error(error, 4);
+        qrk::debug::Error(error, qrk::debug::Q_FAILED_TO_FIND_FILE);
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
@@ -214,27 +215,27 @@ void qrk::Object::LoadObject(const std::string &path) {
         !(object.vertexIndeces.size() == object.normalIndeces.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
-        qrk::Debug::Error(error, 5);
+        qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
     }
     for (unsigned int element : object.vertexIndeces) {
         if (element > object.vertices.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (vertices)";
-            qrk::Debug::Error(error, 6);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
     for (unsigned int element : object.textureIndeces) {
         if (element > object.textures.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (textures)";
-            qrk::Debug::Error(error, 7);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
     for (unsigned int element : object.normalIndeces) {
         if (element > object.normals.size()) {
             std::string error = "Failed to load object at: " + path +
                                 " Out of range exception (normals)";
-            qrk::Debug::Error(error, 8);
+            qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
         }
     }
 
@@ -254,7 +255,7 @@ void qrk::Object::LoadObject(const std::string &path) {
         !(alignedVertices.size() == alignedNormals.size())) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
-        qrk::Debug::Error(error, 15);
+        qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
     }
 
     std::vector<GLfloat> loadResult;
@@ -281,6 +282,7 @@ void qrk::Object::LoadObject(const std::string &path) {
 
     //return data and further clean up
     data = loadResult;
+    vertexNumber = (GLsizei) data.size() / 9;
     std::vector<GLfloat>().swap(loadResult);
 }
 
@@ -311,7 +313,7 @@ qrk::obj qrk::GLObject::GetDrawData() {
         returnData.texture = nullptr;
         returnData.textured = false;
     }
-    returnData.vertexCount = this->objectData->vertexNumber;
+    returnData.vertexCount = this->vertexNumber;
     returnData.position = this->posMatrix;
     returnData.rotation = this->rotMatrix;
     returnData.scale = this->sclMatrix;
