@@ -23,23 +23,23 @@ enum Error {
     Q_FAILED_TO_CREATE_CONTEXT = 7
 };
 
-void OpenLogFile(std::string path = "logs");
-void Log(std::string log);
-void LogWarning(std::string warning);
-void LogError(std::string error);
+void OpenLogFile(const std::string &path = "logs");
+void Log(const std::string &log);
+void LogWarning(const std::string &warning);
+void LogError(const std::string &error);
 
-inline void ShowErrorBox(std::string error) {
+inline void ShowErrorBox(const std::string &error) {
     MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 }
-inline void ShowWarningBox(std::string error) {
+inline void ShowWarningBox(const std::string &error) {
     MessageBox(0, error.c_str(), "Warning", MB_OK | MB_ICONEXCLAMATION);
 }
-inline void Error(std::string error, int code = qrk::debug::Q_DEFAULT_ERROR) {
+inline void Error(const std::string &error, int code = qrk::debug::Q_DEFAULT_ERROR) {
     LogError(error);
     ShowErrorBox(error);
     throw std::exception(std::to_string(code).c_str());
 }
-inline void Warning(std::string error) {
+inline void Warning(const std::string &error) {
     LogWarning(error);
 #ifdef _DEBUG
     ShowWarningBox(error);

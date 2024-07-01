@@ -286,7 +286,7 @@ void qrk::Object::LoadObject(const std::string &path) {
     std::vector<GLfloat>().swap(loadResult);
 }
 
-std::string qrk::Object::DumpObjectData(std::string path) {
+std::string qrk::Object::DumpObjectData(const std::string &path) {
     std::stringstream dataDump;
     //print data to the log file
     for (int i = 0; i < data.size(); i += 9) {
