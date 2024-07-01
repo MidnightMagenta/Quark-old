@@ -26,24 +26,20 @@ class glWindow : GLTools {
 public:
     glWindow(const std::string &windowName, qrk::vec2u size, int windowStyle,
              int multisamplingLevel,
-             qrk::Color _clearColor = {255, 255, 255, 255})
+             qrk::Color _clearColor = {255, 255, 255, 255},
+             int glMajorVersion = 4, int glMinorVersion = 6)
         : Open(true), windowSize(size), mouseMovedCallback(nullptr) {
-        Create(windowName, size, windowStyle, multisamplingLevel, _clearColor);
+        Create(windowName, size, windowStyle, multisamplingLevel, _clearColor,
+               glMajorVersion, glMinorVersion);
     }
     ~glWindow() {}
-
-    bool Create(const std::string &windowName, qrk::vec2u size,
-                int windowStyle = Q_WINDOW_DEFAULT, int multisamplingLevel = 8,
-                qrk::Color _clearColor = {255, 255, 255, 255});
+    void Activate() const { SetActiveWindow(window); }
+    bool IsOpen() const { return Open; }
     void Close() {
         wglDeleteContext(this->glContext);
         DestroyWindow(this->window);
         this->Open = false;
     }
-    void Activate() { SetActiveWindow(window); }
-    bool CreateContext(int multisamplingLevel);
-
-    void SwapWindowBuffers() { SwapBuffers(deviceContext); }
     bool IsContextCurrent() {
         if (wglGetCurrentContext() == glContext) {
             return true;
@@ -51,17 +47,19 @@ public:
             return false;
         }
     }
-    void MakeContextCurrent() { wglMakeCurrent(deviceContext, glContext); }
-    void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    void MakeContextCurrent() const {
+        wglMakeCurrent(deviceContext, glContext);
+    }
     void SetClearColor(qrk::Color _clearColor) {
         qrk::ColorF fColor = qrk::ConvertToFloat(_clearColor);
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
     }
-
+    void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    void SwapWindowBuffers() const { SwapBuffers(deviceContext); }
     void SetSwapInterval(int interval) { wglSwapIntervalEXT(interval); }
 
-    bool IsOpen() { return Open; }
-    MSG GetWindowMessage() {
+    //get and set window parameters
+    MSG GetWindowMessage() const {
         MSG msg = {};
         if (PeekMessage(&msg, this->window, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -69,15 +67,14 @@ public:
         }
         return msg;
     }
-
-    //get and set window parameters
     void q_HideCursor() { ShowCursor(FALSE); }
     void q_ShowCursor() { ShowCursor(TRUE); }
-    qrk::vec2u GetSize() {
+    qrk::vec2u GetSize() const {
         RECT windowRect;
         if (!GetWindowRect(window, &windowRect)) {
-            std::string error = "Could not retrieve window size information. Error code: " +
-                                std::to_string(GetLastError());
+            std::string error =
+                    "Could not retrieve window size information. Error code: " +
+                    std::to_string(GetLastError());
             qrk::debug::ShowErrorBox(error);
             qrk::debug::LogError(error);
             return qrk::vec2u({0, 0});
@@ -86,7 +83,7 @@ public:
                 {(unsigned int) (windowRect.right - windowRect.left),
                  (unsigned int) (windowRect.bottom - windowRect.top)});
     }
-    void SetSize(qrk::vec2u newSize) {
+    void SetSize(qrk::vec2u newSize) const {
         if (!SetWindowPos(window, HWND_TOP, 0, 0, newSize.x(), newSize.y(),
                           SWP_NOMOVE | SWP_NOREPOSITION | SWP_NOACTIVATE)) {
             std::string error = std::to_string(GetLastError());
@@ -95,7 +92,7 @@ public:
         }
     }
 
-    qrk::vec2u GetPosition() {
+    qrk::vec2u GetPosition() const {
         RECT windowRect;
         if (!GetWindowRect(window, &windowRect)) {
             std::string error = "Could not retrieve window size information: " +
@@ -107,7 +104,7 @@ public:
         return qrk::vec2u({(unsigned int) (windowRect.left),
                            (unsigned int) (windowRect.top)});
     }
-    void SetPosition(qrk::vec2u newPos) {
+    void SetPosition(qrk::vec2u newPos) const {
         if (!SetWindowPos(window, HWND_TOP, 0, 0, newPos.x(), newPos.y(),
                           SWP_NOSIZE | SWP_NOREPOSITION | SWP_NOACTIVATE)) {
             std::string error = std::to_string(GetLastError());
@@ -115,13 +112,12 @@ public:
             qrk::debug::LogError(error);
         }
     }
-    HWND GetNativeWindowHandle() { return this->window; }
-    HDC GetNativeDeviceContextHandle() { return this->deviceContext; }
-    HGLRC GetNativeContextHandle() { return this->glContext; }
-
     void SetMouseMovedCallback(void (*callback)(qrk::vec2i mousePosition)) {
         this->mouseMovedCallback = callback;
     }
+    HWND GetNativeWindowHandle() const { return this->window; }
+    HDC GetNativeDeviceContextHandle() const { return this->deviceContext; }
+    HGLRC GetNativeContextHandle() const { return this->glContext; }
 
 protected:
     WNDCLASSEX windowClass;
@@ -145,6 +141,13 @@ protected:
     LRESULT WndProcess(UINT message, WPARAM wParam, LPARAM lParam);
 
     void LoadContextCreationTools();
+
+private:
+    bool Create(const std::string &windowName, qrk::vec2u size, int windowStyle,
+                int multisamplingLevel, qrk::Color _clearColor,
+                int glMajorVersion, int glMinorVersion);
+    bool CreateContext(int multisamplingLevel, int glMajorVersion,
+                       int glMinorVersion);
 };
 }// namespace qrk
 

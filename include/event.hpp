@@ -115,8 +115,17 @@ public:
           mousePosition({0, 0}) {}
     void UpdateWindow() { lastMessage = targetWindow->GetWindowMessage(); }
     bool KeyPressed(qrk::KEY key);
+    /// <summary>
+    /// Get mouse position in relative coordinates while the cursor is in the client area (0, 0 is top left corner of the window)
+    /// </summary>
     qrk::vec2i GetMousePosition();
+    /// <summary>
+    /// Get mouse position in absolute coordinates (0, 0 is top left corner of the primary display)
+    /// </summary>
     qrk::vec2i GetAbsoluteMousePosition();
+    /// <summary>
+    /// Get mouse position in relative coordinates (0, 0 is top left corner of the window)
+    /// </summary>
     qrk::vec2i GetRelativeMousePosition();
 
 private:

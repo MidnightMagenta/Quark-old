@@ -56,7 +56,7 @@ public:
 
     void DeleteData() { std::vector<GLfloat>().swap(data); }
 
-    std::string DumpObjectData(std::string path = "logs");
+    std::string DumpObjectData(const std::string &path = "logs");
 
     std::vector<GLfloat> data;//vertex texture normals
     GLsizei vertexNumber;

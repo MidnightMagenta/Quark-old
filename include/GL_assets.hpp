@@ -17,7 +17,7 @@ inline GLuint boundProgramID = 0;
 class Program {
 public:
     Program() : programHandle(NULL), uniformBlockIndex(NULL) {}
-    Program(std::string vertexPath, std::string fragmentPath) {
+    Program(const std::string &vertexPath, const std::string &fragmentPath) {
         programHandle = glCreateProgram();
         if (!Compile(vertexPath, fragmentPath)) {
             qrk::debug::Error(
@@ -39,7 +39,7 @@ public:
     GLuint uniformBlockIndex;
 
 private:
-    bool Compile(std::string vertexPath, std::string fragmentPath);
+    bool Compile(const std::string &vertexPath, const std::string &fragmentPath);
 };
 }// namespace qrk::assets
 namespace qrk {

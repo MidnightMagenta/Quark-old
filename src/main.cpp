@@ -6,11 +6,13 @@
 #include <iostream>
 
 //define entry point of the application
-void TestFunc(qrk::vec2i num) { std::cout << num.x() << " " << num.y() << std::endl; }
+void TestFunc(qrk::vec2i num) {
+    std::cout << num.x() << " " << num.y() << std::endl;
+}
 int run() {
     qrk::glWindow wnd("Planet-Demo",
                       qrk::vec2u({(unsigned int) 800, (unsigned int) 800}),
-                      Q_WINDOW_DEFAULT, 8, qrk::Color({10, 10, 10, 255}));
+                      Q_WINDOW_DEFAULT, 16, qrk::Color({10, 10, 10, 255}));
     wnd.MakeContextCurrent();
     wnd.SetSwapInterval(1);
     qrk::Object obj("objects/smooth_uv_sphere.obj");
@@ -22,7 +24,6 @@ int run() {
     }
     wnd.SetClearColor({10, 10, 10, 255});
     qrk::Texture2D texture("textures/testTexture.png");
-    qrk::Texture2D texture2("textures/mercury.jpg", qrk::Texture2DSettings{});
     qrk::settings stng;
     stng.fov = 90 * qrk::units::deg;
     qrk::qb_GL_Renderer render(wnd, &stng);
@@ -48,9 +49,7 @@ int run() {
     qrk::Event e(wnd);
     while (wnd.IsOpen()) {
         e.UpdateWindow();
-        if (e.KeyPressed(qrk::ESCAPE)) {
-            wnd.Close();
-        }
+        if (e.KeyPressed(qrk::ESCAPE)) { wnd.Close(); }
         wnd.Clear();
 
         sun.SetRotation(180 * qrk::units::deg, -fc * qrk::units::deg * 0.4f, 0);
@@ -73,7 +72,6 @@ int run() {
             fc2 = 0;
         }
     }
-
     return 0;
 }
 

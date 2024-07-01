@@ -1,7 +1,7 @@
 #include "../include/GL_assets.hpp"
 
-bool qrk::assets::Program::Compile(std::string vertexPath,
-                                   std::string fragmentPath) {
+bool qrk::assets::Program::Compile(const std::string &vertexPath,
+                                   const std::string &fragmentPath) {
     if (!std::filesystem::exists(vertexPath)) {
         std::string error = "Invalid vertex shader path: " + vertexPath;
         qrk::debug::LogError(error);

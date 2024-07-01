@@ -51,7 +51,8 @@ LRESULT qrk::glWindow::WndProcess(UINT message, WPARAM wParam, LPARAM lParam) {
 
 bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
                            int windowStyle, int multisamplingLevel,
-                           qrk::Color _clearColor) {
+                           qrk::Color _clearColor, int glMajorVersion,
+                           int glMinorVersion) {
     windowClass.cbSize = sizeof(WNDCLASSEX);
     windowClass.style = CS_HREDRAW | CS_VREDRAW;
     windowClass.lpfnWndProc = Process;
@@ -76,7 +77,7 @@ bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
         qrk::debug::Error("Failed to create a window",
                           qrk::debug::Q_FAILED_TO_CREATE_WINDOW);
     }
-    if (!CreateContext(multisamplingLevel)) {
+    if (!CreateContext(multisamplingLevel, glMajorVersion, glMinorVersion)) {
         qrk::debug::Error("Failed to create context",
                           qrk::debug::Q_FAILED_TO_CREATE_CONTEXT);
     }
@@ -86,7 +87,8 @@ bool qrk::glWindow::Create(const std::string &_windowName, qrk::vec2u _size,
     return true;
 }
 
-bool qrk::glWindow::CreateContext(int multisamplingLevel) {
+bool qrk::glWindow::CreateContext(int multisamplingLevel, int glMajorVersion,
+                                  int glMinorVersion) {
     //courtesy of AngeTheGreat
     //create dummy window
     WNDCLASSEX wc;
@@ -161,9 +163,9 @@ bool qrk::glWindow::CreateContext(int multisamplingLevel) {
     LoadContextCreationTools();
 
     const int contextAttribs[] = {WGL_CONTEXT_MAJOR_VERSION_ARB,
-                                  4,
+                                  glMajorVersion,
                                   WGL_CONTEXT_MINOR_VERSION_ARB,
-                                  6,
+                                  glMinorVersion,
                                   WGL_CONTEXT_PROFILE_MASK_ARB,
                                   WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
                                   0};
