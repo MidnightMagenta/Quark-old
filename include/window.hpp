@@ -72,7 +72,7 @@ public:
     void q_ShowCursor() { ShowCursor(TRUE); }
     qrk::vec2u GetSize() const {
         RECT windowRect;
-        if (!GetWindowRect(window, &windowRect)) {
+        if (!GetClientRect(window, &windowRect)) {
             std::string error =
                     "Could not retrieve window size information. Error code: " +
                     std::to_string(GetLastError());

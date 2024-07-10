@@ -22,7 +22,7 @@ LRESULT qrk::glWindow::WndProcess(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
         case WM_SIZE:
             RECT rect;
-            if (GetWindowRect(this->window, &rect)) {
+            if (GetClientRect(this->window, &rect)) {
                 qrk::vec2u size(
                         {(unsigned int) rect.right - (unsigned int) rect.left,
                          (unsigned int) rect.bottom - (unsigned int) rect.top});
