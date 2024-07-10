@@ -1,9 +1,9 @@
 #include <../include/draw.hpp>
 #include <../include/event.hpp>
 #include <../include/object.hpp>
-#include <../include/rect.hpp>
 #include <../include/units.hpp>
 #include <../include/window.hpp>
+#include <../include/rect.hpp>
 #include <iostream>
 
 //define entry point of the application
@@ -46,9 +46,7 @@ int run() {
     qrk::Event e(wnd);
 
     qrk::Rect rect;
-    rect.SetSize(400, 400);
-    rect.SetPosition(-400, -400);
-    rect.SetOrigin(-200, -200);
+
     while (wnd.IsOpen()) {
         e.UpdateWindow();
         if (e.KeyDown(qrk::ESCAPE)) { wnd.Close(); }

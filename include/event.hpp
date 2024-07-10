@@ -113,8 +113,24 @@ public:
     Event(qrk::glWindow &window)
         : targetWindow(&window), lastMessage(window.GetWindowMessage()),
           mousePosition({0, 0}) {}
-    void UpdateWindow() { lastMessage = targetWindow->GetWindowMessage(); }
-    bool KeyPressed(qrk::KEY key);
+    void UpdateWindow() { 
+        lastMessage = targetWindow->GetWindowMessage(); }
+    /// <summary>
+    /// Check if key is down
+    /// </summary>
+    bool KeyDown(qrk::KEY key);
+    /// <summary>
+    /// Check if key is up
+    /// </summary>
+    bool KeyUp(qrk::KEY key);
+    ///// <summary>
+    ///// Return true on the frame they key was pushed down
+    ///// </summary>
+    //bool OnKeyDown(qrk::KEY key);
+    ///// <summary>
+    ///// Return true on the frame the key was released
+    ///// </summary>
+    //bool OnKeyUp(qrk::KEY key);
     /// <summary>
     /// Get mouse position in relative coordinates while the cursor is in the client area (0, 0 is top left corner of the window)
     /// </summary>

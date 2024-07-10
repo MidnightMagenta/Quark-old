@@ -1,10 +1,10 @@
 #include "../include/event.hpp"
 
-bool qrk::Event::KeyPressed(qrk::KEY key) {
+bool qrk::Event::KeyDown(qrk::KEY key) {
     if (!targetWindow->IsOpen()) { return false; }
     return (GetAsyncKeyState(key) & 0x8000) != 0;
 }
-
+bool qrk::Event::KeyUp(qrk::KEY key) { return !KeyDown(key); }
 qrk::vec2i qrk::Event::GetMousePosition() {
     if (!targetWindow->IsOpen()) { return qrk::vec2i({0, 0}); }
     if (this->lastMessage.message == WM_MOUSEMOVE) {
