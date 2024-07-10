@@ -55,8 +55,8 @@ struct UniformData3D {
 };
 struct UniformData2D {
     qrk::mat4 rotation = identity4();
-    qrk::vec2f position = qrk::vec2f({0, 0});
-    qrk::vec2f size = qrk::vec2f({100, 100});
+    qrk::mat4 position = identity4();
+    qrk::mat4 size = identity4();
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
 };
 struct LightSource {

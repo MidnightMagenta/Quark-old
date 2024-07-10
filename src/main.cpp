@@ -58,8 +58,8 @@ int run() {
         planet.SetPosition(std::sin((float) fc / 100) * 3.f,
                            std::cos((float) fc / 100) * -0.5f,
                            std::cos((float) fc / 100) * 3.f - 5.f);
-        render.Queue3dDraw(sun.GetDrawData());
-        render.Queue3dDraw(planet.GetDrawData());
+        //render.Queue3dDraw(sun.GetDrawData());
+        //render.Queue3dDraw(planet.GetDrawData());
         render.Queue2dDraw(rect.GetDrawData());
 
         render.Draw();

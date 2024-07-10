@@ -5,8 +5,8 @@ layout (location = 1) in vec2 texturePos;
 
 layout(std140, row_major) uniform uniformBlock{
 	mat4 rotation;
-    vec2 position;
-    vec2 size;
+    mat4 position;
+    mat4 size;
     vec4 color;
 };
 
@@ -17,6 +17,7 @@ void main()
 {
     f_texturePos = texturePos;
     f_color = color;
-    vec2 finalVertexPos = (vertexPos * size) + position;
-    gl_Position = vec4(finalVertexPos, 0.f, 0.f);
+    vec4 finalVertexPos = vec4(vertexPos, 0, 1);
+    finalVertexPos = position * rotation * size * finalVertexPos;
+    gl_Position = finalVertexPos;
 }

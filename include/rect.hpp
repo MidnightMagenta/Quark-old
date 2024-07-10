@@ -1,11 +1,10 @@
 #ifndef Q_RECT
 #define Q_RECT
 
+#include "../include/color.hpp"
 #include "../include/draw.hpp"
 #include "../include/texture.hpp"
 #include "../include/vector.hpp"
-#include "../include/draw.hpp"
-#include "../include/color.hpp"
 #include <vector>
 
 namespace qrk {
@@ -20,8 +19,8 @@ public:
         glBindVertexArray(VAO);
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(VBO, vertices.size() * sizeof(GLfloat), vertices.data(),
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
+                     vertices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
@@ -42,9 +41,10 @@ private:
     float rotation;
     qrk::Color color;
 
-    const std::vector<GLfloat> vertices = {0, 0,  0, 1, 1, 0,  1, 1,
-                                           0, -1, 0, 0, 1, -1, 1, 0,
-                                           1, 0,  1, 1, 0, -1, 0, 0};
+    const std::vector<GLfloat> vertices = {
+            1,  1,  1, 1, -1, 1,  0, 1, -1, -1, 0, 0,
+            -1, -1, 0, 0, 1,  -1, 1, 1, 1,  1,  1, 0,
+    };
 
     GLuint VAO;
     GLuint VBO;

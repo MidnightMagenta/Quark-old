@@ -144,12 +144,14 @@ void qrk::qb_GL_Renderer::Draw() {
     this->q_2dDraw.UseProgram();
 
     for (int i = 0; i < q_2dObjects.size(); i++) {
-        UBO2D_Data.position = qrk::vec2f(
-                {q_2dObjects[i].position.x() / (float) screenSize.x(),
-                 q_2dObjects[i].position.y() / (float) screenSize.y()});
-        UBO2D_Data.size =
-                qrk::vec2f({q_2dObjects[i].size.x() / (float) screenSize.x(),
-                            q_2dObjects[i].size.y() / (float) screenSize.y()});
+        qrk::mat4 pos = CreateTranslationMatrix(
+                q_2dObjects[i].position.x() / (float) screenSize.x(),
+                q_2dObjects[i].position.y() / (float) screenSize.y(), 0);
+        UBO2D_Data.position = pos;
+        qrk::mat4 size = CreateScaleMatrix(
+                q_2dObjects[i].size.x() / (float) screenSize.x(),
+                q_2dObjects[i].size.y() / (float) screenSize.y(), 0);
+        UBO2D_Data.size = size;
         qrk::mat4 rotMatrix =
                 qrk::CreateRotationMatrix(q_2dObjects[i].rotation, 0.f, 0.f);
         UBO2D_Data.rotation = rotMatrix;
