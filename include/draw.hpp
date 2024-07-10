@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace qrk {
-struct obj {
+struct DrawData_3D {
     GLuint VAO = 0;
     GLuint VBO = 0;
     qrk::Texture2D *texture = nullptr;
@@ -26,6 +26,15 @@ struct obj {
     mat4 rotation = qrk::identity4();
     mat4 scale = qrk::identity4();
     ColorF color = qrk::ColorF(1.f, 1.f, 1.f, 1.f);
+};
+struct DrawData_2D {
+    GLuint VAO = 0;
+    GLuint VBO = 0;
+    qrk::vec2f position = qrk::vec2f({0, 0});
+    qrk::vec2f size = qrk::vec2f({100, 100});
+    qrk::ColorF color = {1.f, 1.f, 1.f, 1.f};
+    float rotation = 0.f;
+    GLsizei vertexCount = 0;
 };
 struct Material {
     float shininess = 25.f;
@@ -43,6 +52,12 @@ struct UniformData3D {
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
     qrk::vec4f cameraPosition = qrk::vec4f({0, 0, 0, 0});
     Material material;
+};
+struct UniformData2D {
+    qrk::mat4 rotation = identity4();
+    qrk::mat4 position = identity4();
+    qrk::mat4 size = identity4();
+    qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
 };
 struct LightSource {
     LightSource() {
@@ -94,10 +109,19 @@ struct settings {
 class qb_GL_Renderer {
 public:
     qb_GL_Renderer() = delete;
-    qb_GL_Renderer(qrk::glWindow &_targetWindow, qrk::settings *_settings = nullptr);
+    qb_GL_Renderer(qrk::glWindow &_targetWindow,
+                   qrk::settings *_settings = nullptr);
     ~qb_GL_Renderer() {}
 
-    void Queue3dDraw(const obj &drawData) { q_3dObjects.push_back(drawData); }
+    void Queue3dDraw(const DrawData_3D &drawData) {
+        q_3dObjects.push_back(drawData);
+    }
+    void Queue2dDraw(const DrawData_2D &drawData) {
+        q_2dObjects.push_back(drawData);
+    }
+    void QueueUIDraw(const DrawData_2D &drawData) {
+        q_UIObjects.push_back(drawData);
+    }
     void AddPointLightSource(const qrk::LightSource &lightSource) {
         q_3dLightSources.push_back(lightSource);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
@@ -119,8 +143,11 @@ public:
 
 private:
     //vectors containing draw queue
-    std::vector<obj> q_3dObjects;
+    std::vector<DrawData_3D> q_3dObjects;
+    std::vector<DrawData_2D> q_2dObjects;
+    std::vector<DrawData_2D> q_UIObjects;
     std::vector<LightSource> q_3dLightSources;
+
 
     //3d draw program, and associated 3d draw specific uniform locations
     qrk::assets::Program q_3dDraw;
@@ -129,6 +156,11 @@ private:
     GLuint textureID;
     GLuint texturedID;
     GLuint lightSource_SSBO;
+
+    //2d draw program and associated 2d draw specific uniform locations;
+    qrk::assets::Program q_2dDraw;
+    qrk::UniformData2D UBO2D_Data;
+    GLuint UBO2D;
 
     //misc variables
     qrk::glWindow *targetWindow;
