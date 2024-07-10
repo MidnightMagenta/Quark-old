@@ -39,11 +39,16 @@ public:
     GLuint uniformBlockIndex;
 
 private:
-    bool Compile(const std::string &vertexPath, const std::string &fragmentPath);
+    bool Compile(const std::string &vertexPath,
+                 const std::string &fragmentPath);
 };
 }// namespace qrk::assets
 namespace qrk {
 inline GLuint GetBoundProgram() { return qrk::assets::boundProgramID; }
+inline void UnbindProgram() {
+    glUseProgram(0);
+    qrk::assets::boundProgramID = 0;
+}
 }// namespace qrk
 
 #endif// !QRK_GL_ASSETS

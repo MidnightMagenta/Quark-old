@@ -17,7 +17,7 @@ void main()
 {
     f_texturePos = texturePos;
     f_color = color;
-    vec4 finalPos = vec4(vertexPos, 0, 1);
-    finalPos = rotation * position * size * finalPos;
-    gl_Position = finalPos;
+    vec4 finalVertexPos = vec4(vertexPos, 0, 1);
+    finalVertexPos = position * rotation * size * finalVertexPos;
+    gl_Position = finalVertexPos;
 }

@@ -1,7 +1,9 @@
 #include "../include/object.hpp"
 
 void qrk::Object::LoadObjectAsync(
-        std::string path, std::promise<std::vector<GLfloat>> _promisedData) {
+        std::string path, std::atomic_bool *finishedFlag,
+        std::promise<std::vector<GLfloat>> _promisedData,
+        std::promise<qrk::Material> _promisedMaterial) {
     //get data from file
     std::ifstream objFile(path);
     if (!objFile.is_open()) {
@@ -10,6 +12,9 @@ void qrk::Object::LoadObjectAsync(
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
+
+    std::filesystem::path mtlPath;
+    bool mtlFound = false;
     while (std::getline(objFile, dataBuffer)) {
         int pos = 0;
         std::string breakBuffer;
@@ -55,6 +60,12 @@ void qrk::Object::LoadObjectAsync(
                 osBuffer.clear();
                 sBuffer.clear();
             }
+        }
+        if (buffer[0] == "mtllib" && !mtlFound) {
+            mtlPath = path;
+            mtlPath.remove_filename();
+            mtlPath += buffer[1];
+            mtlFound = true;
         }
 
         //clean up
@@ -136,10 +147,49 @@ void qrk::Object::LoadObjectAsync(
     std::vector<qrk::vec2f>().swap(alignedTextures);
     object.Clear();
 
+    qrk::Material mtl;
+    if (std::filesystem::exists(mtlPath)) {
+        std::ifstream mtlFile(mtlPath);
+        if (mtlFile.is_open()) {
+            std::string dataBuffer;
+            while (std::getline(mtlFile, dataBuffer)) {
+                std::string breakBuffer;
+                std::vector<std::string> buffer;
+                std::stringstream data;
+                data << dataBuffer;
+
+                while (std::getline(data, breakBuffer, ' ')) {
+                    buffer.push_back(breakBuffer);
+                    breakBuffer.clear();
+                }
+                if (buffer.size() == 0) { continue; }
+                if (buffer[0] == "Ks" || buffer[0] == "ks") {
+                    mtl.specular = qrk::vec3f({std::stof(buffer[1]),
+                                               std::stof(buffer[2]),
+                                               std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Kd" || buffer[0] == "kd") {
+                    mtl.diffuse = qrk::vec3f({std::stof(buffer[1]),
+                                              std::stof(buffer[2]),
+                                              std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Ka" || buffer[0] == "ka") {
+                    mtl.ambient = qrk::vec3f({std::stof(buffer[1]),
+                                              std::stof(buffer[2]),
+                                              std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Ns" || buffer[0] == "ns") {
+                    mtl.shininess = std::stof(buffer[1]);
+                }
+            }
+        }
+    }
+
     //return data
     _promisedData.set_value(loadResult);
+    _promisedMaterial.set_value(mtl);
     std::vector<GLfloat>().swap(loadResult);
-    loadFinished = true;
+    *finishedFlag = true;
 }
 
 void qrk::Object::LoadObject(const std::string &path) {
@@ -155,6 +205,9 @@ void qrk::Object::LoadObject(const std::string &path) {
     }
     qrk::Object::ObjectData object;
     std::string dataBuffer;
+
+    std::filesystem::path mtlPath;
+    bool mtlFound = false;
     while (std::getline(objFile, dataBuffer)) {
         int pos = 0;
         std::string breakBuffer;
@@ -200,6 +253,12 @@ void qrk::Object::LoadObject(const std::string &path) {
                 osBuffer.clear();
                 sBuffer.clear();
             }
+        }
+        if (buffer[0] == "mtllib" && !mtlFound) {
+            mtlPath = path;
+            mtlPath.remove_filename();
+            mtlPath += buffer[1];
+            mtlFound = true;
         }
         //clean up
         buffer.clear();
@@ -280,6 +339,44 @@ void qrk::Object::LoadObject(const std::string &path) {
     std::vector<qrk::vec2f>().swap(alignedTextures);
     object.Clear();
 
+    qrk::Material mtl;
+    if (std::filesystem::exists(mtlPath)) {
+        std::ifstream mtlFile(mtlPath);
+        if (mtlFile.is_open()) {
+            std::string dataBuffer;
+            while (std::getline(mtlFile, dataBuffer)) {
+                std::string breakBuffer;
+                std::vector<std::string> buffer;
+                std::stringstream data;
+                data << dataBuffer;
+
+                while (std::getline(data, breakBuffer, ' ')) {
+                    buffer.push_back(breakBuffer);
+                    breakBuffer.clear();
+                }
+                if (buffer.size() == 0) { continue; }
+                if (buffer[0] == "Ks" || buffer[0] == "ks") {
+                    mtl.specular = qrk::vec3f({std::stof(buffer[1]),
+                                               std::stof(buffer[2]),
+                                               std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Kd" || buffer[0] == "kd") {
+                    mtl.diffuse = qrk::vec3f({std::stof(buffer[1]),
+                                              std::stof(buffer[2]),
+                                              std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Ka" || buffer[0] == "ka") {
+                    mtl.ambient = qrk::vec3f({std::stof(buffer[1]),
+                                              std::stof(buffer[2]),
+                                              std::stof(buffer[3])});
+                }
+                if (buffer[0] == "Ns" || buffer[0] == "ns") {
+                    mtl.shininess = std::stof(buffer[1]);
+                }
+            }
+        }
+    }
+
     //return data and further clean up
     data = loadResult;
     vertexNumber = (GLsizei) data.size() / 9;
@@ -302,8 +399,8 @@ std::string qrk::Object::DumpObjectData(const std::string &path) {
     return dataDump.str();
 }
 
-qrk::obj qrk::GLObject::GetDrawData() {
-    qrk::obj returnData;
+qrk::DrawData_3D qrk::GLObject::GetDrawData() {
+    qrk::DrawData_3D returnData;
     returnData.VAO = this->VAO;
     returnData.VBO = this->VBO;
     if (textured) {

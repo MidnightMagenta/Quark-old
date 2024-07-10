@@ -81,7 +81,9 @@ void qrk::qb_GL_Renderer::Draw() {
         targetWindow->MakeContextCurrent();
     }
     //3d draw
-    this->q_3dDraw.UseProgram();
+    if (qrk::GetBoundProgram() != this->q_3dDraw.programHandle) {
+        this->q_3dDraw.UseProgram();
+    }
 
     float fov = 70.f * qrk::units::deg;
     if (this->__settings != nullptr) { fov = this->__settings->fov; }
@@ -142,17 +144,14 @@ void qrk::qb_GL_Renderer::Draw() {
     this->q_2dDraw.UseProgram();
 
     for (int i = 0; i < q_2dObjects.size(); i++) {
-        qrk::mat4 posMatrix = CreateTranslationMatrix(
-                (q_2dObjects[i].position.x()) /
-                        screenSize.x(),
-                -(q_2dObjects[i].position.y()) /
-                        screenSize.y(),
-                0.f);
-        UBO2D_Data.position = posMatrix;
-        qrk::mat4 sizeMatrix = CreateScaleMatrix(
-                q_2dObjects[i].size.x() / screenSize.x(),
-                q_2dObjects[i].size.y() / screenSize.y(), 0.f);
-        UBO2D_Data.size = sizeMatrix;
+        qrk::mat4 pos = CreateTranslationMatrix(
+                q_2dObjects[i].position.x() / (float) screenSize.x(),
+                q_2dObjects[i].position.y() / (float) screenSize.y(), 0);
+        UBO2D_Data.position = pos;
+        qrk::mat4 size = CreateScaleMatrix(
+                q_2dObjects[i].size.x() / (float) screenSize.x(),
+                q_2dObjects[i].size.y() / (float) screenSize.y(), 0);
+        UBO2D_Data.size = size;
         qrk::mat4 rotMatrix =
                 qrk::CreateRotationMatrix(q_2dObjects[i].rotation, 0.f, 0.f);
         UBO2D_Data.rotation = rotMatrix;
