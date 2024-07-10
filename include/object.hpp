@@ -27,12 +27,10 @@ public:
                               qrk::debug::Q_FAILED_TO_FIND_FILE);
         }
         if (async) {
-            _path = path;
             futureData = promisedData.get_future();
-            std::thread loadThread(std::bind(&qrk::Object::LoadObjectAsync,
-                                             this, std::placeholders::_1,
-                                             std::placeholders::_2),
-                                   path, std::move(promisedData));
+            futureMaterial = promisedMaterial.get_future();
+            std::thread loadThread(&LoadObjectAsync,
+                                   path, &loadFinished, std::move(promisedData), std::move(promisedMaterial));
             loadThread.detach();
         } else {
             LoadObject(path);
@@ -41,15 +39,18 @@ public:
 
     ~Object() {}
 
-    bool WaitForLoad() {
+    bool WaitForLoad(qrk::glWindow &window) {
         if (asyncLoad) {
             if (!data.empty()) { return false; }
             if (loadFinished) {
                 data = futureData.get();
                 vertexNumber = (GLsizei) data.size() / 9;
+                material = futureMaterial.get();
                 return false;
-            } else
+            } else {
+                window.GetWindowMessage();
                 return true;
+            }
         } else
             return false;
     }
@@ -59,18 +60,22 @@ public:
     std::string DumpObjectData(const std::string &path = "logs");
 
     std::vector<GLfloat> data;//vertex texture normals
+    qrk::Material material;
     GLsizei vertexNumber;
 
 private:
-    void LoadObjectAsync(std::string path,
-                         std::promise<std::vector<GLfloat>> _promisedData);
+    static void LoadObjectAsync(std::string path, std::atomic_bool *finishedFlag,
+                         std::promise<std::vector<GLfloat>> _promisedData,
+                         std::promise<qrk::Material> _promisedMaterial);
     void LoadObject(const std::string &path);
 
     std::atomic_bool loadFinished;
     bool asyncLoad;
-    std::string _path;
     std::promise<std::vector<GLfloat>> promisedData;
     std::future<std::vector<GLfloat>> futureData;
+
+    std::promise<qrk::Material> promisedMaterial;
+    std::future<qrk::Material> futureMaterial;
 
     struct ObjectData {
         std::vector<qrk::vec4f> vertices;
@@ -160,23 +165,24 @@ public:
     qrk::vec3f GetRotation() { return rotation; }
     qrk::vec3f GetScale() { return scale; }
 
-    qrk::obj GetDrawData();
+    qrk::DrawData_3D GetDrawData();
 
 private:
     qrk::Texture2D *texture;
     bool textured;
+    char padding[3];
 
     GLuint VAO;
     GLuint VBO;
     GLsizei vertexNumber;
 
+    qrk::ColorF color;
     qrk::vec3f position;
     qrk::vec3f rotation;
     qrk::vec3f scale;
     qrk::mat4 posMatrix;
     qrk::mat4 rotMatrix;
     qrk::mat4 sclMatrix;
-    qrk::ColorF color;
 };
 }// namespace qrk
 

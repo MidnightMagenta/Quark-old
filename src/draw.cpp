@@ -38,9 +38,10 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
         glEnable(GL_MULTISAMPLE);
         glSampleCoverage(1, GL_FALSE);
     }
-
-    q_3dDraw = qrk::assets::Program("shaders/3d_vertex_shader.vert",
-                                    "shaders/3d_fragment_shader.frag");
+    //compile the 3d program
+    q_3dDraw =
+            qrk::assets::Program("resources/shaders/3d_vertex_shader.vert",
+                                 "resources/shaders/3d_fragment_shader.frag");
     textureID = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
     texturedID = glGetUniformLocation(q_3dDraw.programHandle, "textured");
     //create the 3d UBO
@@ -49,6 +50,7 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
     glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), &UBO3D_Data,
                  GL_DYNAMIC_COPY);
     glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     //create the light source SSBO
     glGenBuffers(1, &lightSource_SSBO);
@@ -60,6 +62,17 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
                     q_3dLightSources.size() * sizeof(LightSource),
                     q_3dLightSources.data());
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, lightSource_SSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    //compile the 2d program
+    q_2dDraw =
+            qrk::assets::Program("resources/shaders/2d_vertex_shader.vert",
+                                 "resources/shaders/2d_fragment_shader.frag");
+    glGenBuffers(1, &UBO2D);
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO2D);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData2D), &UBO2D_Data,
+                 GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 2, UBO2D);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void qrk::qb_GL_Renderer::Draw() {
@@ -67,17 +80,16 @@ void qrk::qb_GL_Renderer::Draw() {
     if (!targetWindow->IsContextCurrent()) {
         targetWindow->MakeContextCurrent();
     }
+    //3d draw
     if (qrk::GetBoundProgram() != this->q_3dDraw.programHandle) {
         this->q_3dDraw.UseProgram();
     }
 
     float fov = 70.f * qrk::units::deg;
     if (this->__settings != nullptr) { fov = this->__settings->fov; }
+    qrk::vec2u screenSize = targetWindow->GetSize();
     qrk::mat4 projectionMatrix = qrk::CreatePerspectiveProjectionMatrix(
-            fov,
-            (float) targetWindow->GetSize().x() /
-                    (float) targetWindow->GetSize().y(),
-            1.f, 100.f);
+            fov, (float) screenSize.x() / (float) screenSize.y(), 1.f, 100.f);
     UBO3D_Data.projection = projectionMatrix;
     qrk::mat4 identity = qrk::identity4();
     UBO3D_Data.view = identity;
@@ -107,7 +119,7 @@ void qrk::qb_GL_Renderer::Draw() {
         glBindVertexArray(q_3dObjects[i].VAO);
         glBindBuffer(GL_ARRAY_BUFFER, q_3dObjects[i].VBO);
 
-        //generate pointers to vertex attributes
+        //generate vertex attributes
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) 0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
@@ -127,8 +139,46 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(2);
     }
     q_3dObjects.clear();
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /*   glUseProgram(q_2dDraw.programHandle);
-    for (int i = 0; i < q_2dObjects.size(); i++) {}*/
+    //2d draw
+    this->q_2dDraw.UseProgram();
+
+    for (int i = 0; i < q_2dObjects.size(); i++) {
+        UBO2D_Data.position = qrk::vec2f(
+                {q_2dObjects[i].position.x() / (float) screenSize.x(),
+                 q_2dObjects[i].position.y() / (float) screenSize.y()});
+        UBO2D_Data.size =
+                qrk::vec2f({q_2dObjects[i].size.x() / (float) screenSize.x(),
+                            q_2dObjects[i].size.y() / (float) screenSize.y()});
+        qrk::mat4 rotMatrix =
+                qrk::CreateRotationMatrix(q_2dObjects[i].rotation, 0.f, 0.f);
+        UBO2D_Data.rotation = rotMatrix;
+        UBO2D_Data.color =
+                qrk::vec4f({q_2dObjects[i].color.r, q_2dObjects[i].color.b,
+                            q_2dObjects[i].color.g, q_2dObjects[i].color.a});
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO2D);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData2D),
+                        &UBO2D_Data);
+        glUniformBlockBinding(q_2dDraw.programHandle,
+                              q_2dDraw.uniformBlockIndex, 2);
+
+        glBindVertexArray(q_2dObjects[i].VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, q_2dObjects[i].VBO);
+
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) (2 * sizeof(GLfloat)));
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glDrawArrays(GL_TRIANGLES, 0, q_2dObjects[i].vertexCount);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+    }
+    q_2dObjects.clear();
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    qrk::UnbindProgram();
 }

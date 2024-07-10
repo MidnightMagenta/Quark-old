@@ -55,13 +55,14 @@ public:
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
     }
     void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-    void SwapWindowBuffers() const { SwapBuffers(deviceContext); }
+    void SwapWindowBuffers() const { 
+        SwapBuffers(deviceContext); }
     void SetSwapInterval(int interval) { wglSwapIntervalEXT(interval); }
 
     //get and set window parameters
     MSG GetWindowMessage() const {
         MSG msg = {};
-        if (PeekMessage(&msg, this->window, 0, 0, PM_REMOVE)) {
+        if (PeekMessageW(&msg, this->window, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }

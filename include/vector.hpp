@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace qrk {
-//Main classs definition
 template<typename t_vector, uint8_t t_vec_size>
 class Vector {
 public:
@@ -90,7 +89,7 @@ public:
 template<typename t_vector>
 class Vector<t_vector, 2> {
 public:
-    Vector() : data{}, padding(NULL){};
+    Vector() : data{}{};
     Vector(const std::array<t_vector, 2> &_vector) { CreateVector(_vector); }
     void CreateVector(const std::array<t_vector, 2> &_vector) {
         if (_vector.size() == data.size())
@@ -161,9 +160,6 @@ public:
     }
 
     std::array<t_vector, 2> data;
-
-private:
-    char padding[sizeof(t_vector) * 2];
 
 public:
     inline t_vector &x() { return data[0]; }
