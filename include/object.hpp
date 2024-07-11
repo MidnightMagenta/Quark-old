@@ -170,7 +170,6 @@ public:
 private:
     qrk::Texture2D *texture;
     bool textured;
-    char padding[3];
 
     GLuint VAO;
     GLuint VBO;

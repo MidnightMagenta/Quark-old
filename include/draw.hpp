@@ -33,9 +33,13 @@ struct DrawData_2D {
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::vec2f size = qrk::vec2f({100, 100});
     qrk::ColorF color = {1.f, 1.f, 1.f, 1.f};
+    qrk::Texture2D *texture = nullptr;
     float rotation = 0.f;
     GLsizei vertexCount = 0;
 };
+template<typename T>
+concept drawDataStruct =
+        std::is_same_v<T, DrawData_3D> || std::is_same_v<T, DrawData_2D>;
 struct Material {
     float shininess = 25.f;
     char padding[12];
@@ -55,8 +59,8 @@ struct UniformData3D {
 };
 struct UniformData2D {
     qrk::mat4 rotation = identity4();
-    qrk::mat4 position = identity4();
-    qrk::mat4 size = identity4();
+    qrk::vec2f position = qrk::vec2f({0, 0});
+    qrk::vec2f size = qrk::vec2f({1, 1});
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
 };
 struct LightSource {
@@ -98,7 +102,7 @@ struct LightSource {
     vec3f specular;
 };
 
-struct settings {
+struct RendererSettings {
     bool depthTest = true;
     bool cullFaces = true;
     bool alpha = true;
@@ -110,18 +114,24 @@ class qb_GL_Renderer {
 public:
     qb_GL_Renderer() = delete;
     qb_GL_Renderer(qrk::glWindow &_targetWindow,
-                   qrk::settings *_settings = nullptr);
+                   qrk::RendererSettings *_settings = nullptr);
     ~qb_GL_Renderer() {}
 
-    void Queue3dDraw(const DrawData_3D &drawData) {
-        q_3dObjects.push_back(drawData);
+    template<drawDataStruct draw_t>
+    void QueueDraw(draw_t drawData, bool UI = false) {
+        if constexpr (std::is_same_v<draw_t, DrawData_3D>) {
+            Queue3dDraw(drawData);
+        } else if constexpr (std::is_same_v<draw_t, DrawData_2D>) {
+            if (UI) {
+                QueueUIDraw(drawData);
+            } else {
+                Queue2dDraw(drawData);
+            }
+        } else {
+            qrk::debug::Error("Invalid draw call", qrk::debug::Q_INVALID_DRAW);
+        }
     }
-    void Queue2dDraw(const DrawData_2D &drawData) {
-        q_2dObjects.push_back(drawData);
-    }
-    void QueueUIDraw(const DrawData_2D &drawData) {
-        q_UIObjects.push_back(drawData);
-    }
+
     void AddPointLightSource(const qrk::LightSource &lightSource) {
         q_3dLightSources.push_back(lightSource);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
@@ -149,22 +159,34 @@ private:
     std::vector<LightSource> q_3dLightSources;
 
 
-    //3d draw program, and associated 3d draw specific uniform locations
+    //3d draw program and associated 3d draw specific uniform locations
     qrk::assets::Program q_3dDraw;
     qrk::UniformData3D UBO3D_Data;
     GLuint UBO3D;
-    GLuint textureID;
-    GLuint texturedID;
+    GLuint textureID_3d;
+    GLuint texturedID_3d;
     GLuint lightSource_SSBO;
 
     //2d draw program and associated 2d draw specific uniform locations;
     qrk::assets::Program q_2dDraw;
     qrk::UniformData2D UBO2D_Data;
     GLuint UBO2D;
+    GLuint textureID_2d;
+    GLuint texturedID_2d;
 
     //misc variables
     qrk::glWindow *targetWindow;
-    qrk::settings *__settings;
+    qrk::RendererSettings *__settings;
+
+    void Queue3dDraw(const DrawData_3D &drawData) {
+        q_3dObjects.push_back(drawData);
+    }
+    void Queue2dDraw(const DrawData_2D &drawData) {
+        q_2dObjects.push_back(drawData);
+    }
+    void QueueUIDraw(const DrawData_2D &drawData) {
+        q_UIObjects.push_back(drawData);
+    }
 };
 }// namespace qrk
 

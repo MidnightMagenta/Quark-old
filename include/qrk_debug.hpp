@@ -20,7 +20,8 @@ enum Error {
     Q_LOADING_ERROR = 4,
     Q_FAILED_TO_LOAD_IMAGE = 5,
     Q_FAILED_TO_CREATE_WINDOW = 6,
-    Q_FAILED_TO_CREATE_CONTEXT = 7
+    Q_FAILED_TO_CREATE_CONTEXT = 7,
+    Q_INVALID_DRAW = 8
 };
 
 void OpenLogFile(const std::string &path = "logs");
@@ -34,7 +35,8 @@ inline void ShowErrorBox(const std::string &error) {
 inline void ShowWarningBox(const std::string &error) {
     MessageBox(0, error.c_str(), "Warning", MB_OK | MB_ICONEXCLAMATION);
 }
-inline void Error(const std::string &error, int code = qrk::debug::Q_DEFAULT_ERROR) {
+inline void Error(const std::string &error,
+                  int code = qrk::debug::Q_DEFAULT_ERROR) {
     LogError(error);
     ShowErrorBox(error);
     throw std::exception(std::to_string(code).c_str());
