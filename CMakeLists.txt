@@ -13,6 +13,12 @@ add_custom_target(q_start_clock ALL
 	COMMENT "Starting console clock"
 	COMMAND "${PROJECT_SOURCE_DIR}/console_clock/bin/run.bat"
 )
+add_custom_target(q_copy_resources ALL
+	COMMENT "Copying resources directory"
+	COMMAND ${CMAKE_COMMAND} -E copy_directory 
+			${PROJECT_SOURCE_DIR}/resources
+			${CMAKE_CURRENT_BINARY_DIR}/resources
+)
 
 add_library("${ProjectName}-dependencies" STATIC
 	dependencies/OpenGL.h
@@ -40,6 +46,7 @@ add_library("${ProjectName}" STATIC
 	src/event.cpp
 	src/stb_truetype.cpp
 	src/rect.cpp
+	src/render_window.cpp
 
 	#header files
 	include/window.hpp
@@ -57,6 +64,7 @@ add_library("${ProjectName}" STATIC
 	include/event.hpp
 	include/stb_truetype.hpp
 	include/rect.hpp
+	include/render_window.hpp
 )
 target_link_libraries("${ProjectName}" "${ProjectName}-dependencies" OpenGL::GL)
 target_include_directories("${ProjectName}" PUBLIC include)
@@ -67,11 +75,5 @@ add_executable("${ProjectName}-test"
 	#header files
 )
 
-add_custom_command(TARGET "${ProjectName}-test" POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory 
-			${PROJECT_SOURCE_DIR}/resources
-			${CMAKE_CURRENT_BINARY_DIR}/resources
-)
-
-add_dependencies("${ProjectName}-test" q_start_clock)
+add_dependencies("${ProjectName}-test" q_start_clock q_copy_resources)
 target_link_libraries("${ProjectName}-test" "${ProjectName}")

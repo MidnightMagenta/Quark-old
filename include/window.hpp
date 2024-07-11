@@ -14,6 +14,13 @@
 #define Q_WINDOW_NONRESIZABLE WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU
 
 namespace qrk {
+struct WindowSettings {
+    int windowStyle = Q_WINDOW_DEFAULT;
+    int multisamplingLevel = 8;
+    qrk::Color clearColor = {255, 255, 255, 255};
+    int glMajorVersion = 4;
+    int glMinorVersion = 6;
+};
 class GLTools {
 public:
     //context creation tools
@@ -24,13 +31,13 @@ public:
 
 class glWindow : GLTools {
 public:
-    glWindow(const std::string &windowName, qrk::vec2u size, int windowStyle,
-             int multisamplingLevel,
-             qrk::Color _clearColor = {255, 255, 255, 255},
-             int glMajorVersion = 4, int glMinorVersion = 6)
+    glWindow(const std::string &windowName, qrk::vec2u size,
+             qrk::WindowSettings settings =
+                     {Q_WINDOW_DEFAULT, 8, {255, 255, 255, 255}, 4, 6})
         : Open(true), windowSize(size), mouseMovedCallback(nullptr) {
-        Create(windowName, size, windowStyle, multisamplingLevel, _clearColor,
-               glMajorVersion, glMinorVersion);
+        Create(windowName, size, settings.windowStyle,
+               settings.multisamplingLevel, settings.clearColor,
+               settings.glMajorVersion, settings.glMinorVersion);
     }
     ~glWindow() {}
     void Activate() const { SetActiveWindow(window); }
@@ -55,8 +62,7 @@ public:
         glClearColor(fColor.r, fColor.g, fColor.b, fColor.a);
     }
     void Clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-    void SwapWindowBuffers() const { 
-        SwapBuffers(deviceContext); }
+    void SwapWindowBuffers() const { SwapBuffers(deviceContext); }
     void SetSwapInterval(int interval) { wglSwapIntervalEXT(interval); }
 
     //get and set window parameters

@@ -1,7 +1,7 @@
 #include "../include/draw.hpp"
 
 qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
-                                    qrk::settings *_settings)
+                                    qrk::RendererSettings *_settings)
     : targetWindow(&_targetWindow), __settings(_settings) {
     if (_settings != nullptr) {
         if (_settings->depthTest == true) {
@@ -42,8 +42,8 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
     q_3dDraw =
             qrk::assets::Program("resources/shaders/3d_vertex_shader.vert",
                                  "resources/shaders/3d_fragment_shader.frag");
-    textureID = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
-    texturedID = glGetUniformLocation(q_3dDraw.programHandle, "textured");
+    textureID_3d = glGetUniformLocation(q_3dDraw.programHandle, "inTexture");
+    texturedID_3d = glGetUniformLocation(q_3dDraw.programHandle, "textured");
     //create the 3d UBO
     glGenBuffers(1, &UBO3D);
     glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
@@ -67,6 +67,9 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
     q_2dDraw =
             qrk::assets::Program("resources/shaders/2d_vertex_shader.vert",
                                  "resources/shaders/2d_fragment_shader.frag");
+    textureID_2d = glGetUniformLocation(q_2dDraw.programHandle, "f_texture");
+    texturedID_2d = glGetUniformLocation(q_2dDraw.programHandle, "textured");
+    //create the 2d UBO
     glGenBuffers(1, &UBO2D);
     glBindBuffer(GL_UNIFORM_BUFFER, UBO2D);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData2D), &UBO2D_Data,
@@ -95,7 +98,6 @@ void qrk::qb_GL_Renderer::Draw() {
     UBO3D_Data.view = identity;
 
     for (int i = 0; i < q_3dObjects.size(); i++) {
-        //move the draw data to a unifrom block in the shader
         UBO3D_Data.position = q_3dObjects[i].position;
         UBO3D_Data.rotation = q_3dObjects[i].rotation;
         UBO3D_Data.scale = q_3dObjects[i].scale;
@@ -103,11 +105,11 @@ void qrk::qb_GL_Renderer::Draw() {
                 qrk::vec4f({q_3dObjects[i].color.r, q_3dObjects[i].color.g,
                             q_3dObjects[i].color.b, q_3dObjects[i].color.a});
         if (q_3dObjects[i].textured && q_3dObjects[i].texture != nullptr) {
-            glUniform1i(texturedID, GL_TRUE);
+            glUniform1i(texturedID_3d, GL_TRUE);
             q_3dObjects[i].texture->BindTexture();
-            glUniform1i(textureID, 0);
+            glUniform1i(textureID_3d, 0);
         } else {
-            glUniform1i(texturedID, GL_FALSE);
+            glUniform1i(texturedID_3d, GL_FALSE);
         }
 
         glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
@@ -119,7 +121,6 @@ void qrk::qb_GL_Renderer::Draw() {
         glBindVertexArray(q_3dObjects[i].VAO);
         glBindBuffer(GL_ARRAY_BUFFER, q_3dObjects[i].VBO);
 
-        //generate vertex attributes
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) 0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
@@ -127,7 +128,6 @@ void qrk::qb_GL_Renderer::Draw() {
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat),
                               (void *) (6 * sizeof(GLfloat)));
 
-        //draw
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
@@ -138,20 +138,19 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(2);
     }
-    q_3dObjects.clear();
 
     //2d draw
     this->q_2dDraw.UseProgram();
 
     for (int i = 0; i < q_2dObjects.size(); i++) {
-        qrk::mat4 pos = CreateTranslationMatrix(
-                q_2dObjects[i].position.x() / (float) screenSize.x(),
-                q_2dObjects[i].position.y() / (float) screenSize.y(), 0);
-        UBO2D_Data.position = pos;
-        qrk::mat4 size = CreateScaleMatrix(
-                q_2dObjects[i].size.x() / (float) screenSize.x(),
-                q_2dObjects[i].size.y() / (float) screenSize.y(), 0);
-        UBO2D_Data.size = size;
+        UBO2D_Data.position = qrk::vec2f(
+                {(q_2dObjects[i].position.x() - ((float) screenSize.x() / 2)) /
+                         ((float) screenSize.x() / 2),
+                 -(q_2dObjects[i].position.y() - ((float) screenSize.y()) / 2) /
+                         ((float) screenSize.y() / 2)});
+        UBO2D_Data.size =
+                qrk::vec2f({q_2dObjects[i].size.x() / (float) screenSize.x(),
+                            q_2dObjects[i].size.y() / (float) screenSize.y()});
         qrk::mat4 rotMatrix =
                 qrk::CreateRotationMatrix(q_2dObjects[i].rotation, 0.f, 0.f);
         UBO2D_Data.rotation = rotMatrix;
@@ -163,6 +162,14 @@ void qrk::qb_GL_Renderer::Draw() {
                         &UBO2D_Data);
         glUniformBlockBinding(q_2dDraw.programHandle,
                               q_2dDraw.uniformBlockIndex, 2);
+
+        if (q_2dObjects[i].texture != nullptr) {
+            glUniform1i(texturedID_2d, GL_TRUE);
+            q_2dObjects[i].texture->BindTexture();
+            glUniform1i(textureID_2d, 0);
+        } else {
+            glUniform1i(texturedID_2d, GL_FALSE);
+        }
 
         glBindVertexArray(q_2dObjects[i].VAO);
         glBindBuffer(GL_ARRAY_BUFFER, q_2dObjects[i].VBO);
@@ -178,7 +185,57 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
+
+    //UI draw
+    glClear(GL_DEPTH_BUFFER_BIT);
+    for (int i = 0; i < q_UIObjects.size(); i++) {
+        UBO2D_Data.position = qrk::vec2f(
+                {(q_UIObjects[i].position.x() - ((float) screenSize.x() / 2)) /
+                         ((float) screenSize.x() / 2),
+                 -(q_UIObjects[i].position.y() - ((float) screenSize.y()) / 2) /
+                         ((float) screenSize.y() / 2)});
+        UBO2D_Data.size =
+                qrk::vec2f({q_UIObjects[i].size.x() / (float) screenSize.x(),
+                            q_UIObjects[i].size.y() / (float) screenSize.y()});
+        qrk::mat4 rotMatrix =
+                qrk::CreateRotationMatrix(q_UIObjects[i].rotation, 0.f, 0.f);
+        UBO2D_Data.rotation = rotMatrix;
+        UBO2D_Data.color =
+                qrk::vec4f({q_UIObjects[i].color.r, q_UIObjects[i].color.b,
+                            q_UIObjects[i].color.g, q_UIObjects[i].color.a});
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO2D);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformData2D),
+                        &UBO2D_Data);
+        glUniformBlockBinding(q_2dDraw.programHandle,
+                              q_2dDraw.uniformBlockIndex, 2);
+
+        if (q_UIObjects[i].texture != nullptr) {
+            glUniform1i(texturedID_2d, GL_TRUE);
+            q_UIObjects[i].texture->BindTexture();
+            glUniform1i(textureID_2d, 0);
+        } else {
+            glUniform1i(texturedID_2d, GL_FALSE);
+        }
+
+        glBindVertexArray(q_UIObjects[i].VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, q_UIObjects[i].VBO);
+
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) (2 * sizeof(GLfloat)));
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glDrawArrays(GL_TRIANGLES, 0, q_UIObjects[i].vertexCount);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+    }
+
+    //clean up
+    q_3dObjects.clear();
     q_2dObjects.clear();
+    q_UIObjects.clear();
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
