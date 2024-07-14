@@ -76,7 +76,7 @@ struct LightSource {
         diffuse = qrk::vec3f({1.f, 1.f, 1.f});
         specular = qrk::vec3f({0.3f, 0.3f, 0.3f});
     }
-    LightSource(qrk::vec3f _position, qrk::Color color) {
+    LightSource(const qrk::vec3f &_position, const qrk::Color &color) {
         position = _position;
         lightType = Q_POINT;
 
@@ -107,18 +107,17 @@ struct RendererSettings {
     bool cullFaces = true;
     bool alpha = true;
     bool multisample = true;
-    float fov = 70 * qrk::units::deg;
 };
 
 class qb_GL_Renderer {
 public:
     qb_GL_Renderer() = delete;
     qb_GL_Renderer(qrk::glWindow &_targetWindow,
-                   qrk::RendererSettings *_settings = nullptr);
+                   qrk::RendererSettings _settings = {true, true, true, true});
     ~qb_GL_Renderer() {}
 
     template<drawDataStruct draw_t>
-    void QueueDraw(draw_t drawData, bool UI = false) {
+    void QueueDraw(const draw_t &drawData, bool UI = false) {
         if constexpr (std::is_same_v<draw_t, DrawData_3D>) {
             Queue3dDraw(drawData);
         } else if constexpr (std::is_same_v<draw_t, DrawData_2D>) {
@@ -132,7 +131,7 @@ public:
         }
     }
 
-    void AddPointLightSource(const qrk::LightSource &lightSource) {
+    void AddLightSource(const qrk::LightSource &lightSource) {
         q_3dLightSources.push_back(lightSource);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
@@ -140,7 +139,7 @@ public:
                      q_3dLightSources.data(), GL_DYNAMIC_COPY);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
-    void RemovePointLightSource(size_t index) {
+    void RemoveLightSource(size_t index) {
         q_3dLightSources.erase(q_3dLightSources.begin() + index);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, lightSource_SSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER,
@@ -176,7 +175,6 @@ private:
 
     //misc variables
     qrk::glWindow *targetWindow;
-    qrk::RendererSettings *__settings;
 
     void Queue3dDraw(const DrawData_3D &drawData) {
         q_3dObjects.push_back(drawData);

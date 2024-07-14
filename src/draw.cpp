@@ -1,42 +1,31 @@
 #include "../include/draw.hpp"
 
 qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
-                                    qrk::RendererSettings *_settings)
-    : targetWindow(&_targetWindow), __settings(_settings) {
-    if (_settings != nullptr) {
-        if (_settings->depthTest == true) {
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
-        } else {
-            glDisable(GL_DEPTH_TEST);
-        }
-        if (_settings->cullFaces == true) {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
-        } else {
-            glDisable(GL_CULL_FACE);
-        }
-        if (_settings->alpha == true) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        } else {
-            glDisable(GL_BLEND);
-        }
-        if (_settings->multisample == true) {
-            glEnable(GL_MULTISAMPLE);
-            glSampleCoverage(1, GL_FALSE);
-        } else {
-            glDisable(GL_MULTISAMPLE);
-        }
-    } else {
+                                    qrk::RendererSettings _settings)
+    : targetWindow(&_targetWindow) {
+    if (_settings.depthTest == true) {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
+    if (_settings.cullFaces == true) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
+    } else {
+        glDisable(GL_CULL_FACE);
+    }
+    if (_settings.alpha == true) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_BLEND);
+    }
+    if (_settings.multisample == true) {
         glEnable(GL_MULTISAMPLE);
         glSampleCoverage(1, GL_FALSE);
+    } else {
+        glDisable(GL_MULTISAMPLE);
     }
     //compile the 3d program
     q_3dDraw =
@@ -88,11 +77,9 @@ void qrk::qb_GL_Renderer::Draw() {
         this->q_3dDraw.UseProgram();
     }
 
-    float fov = 70.f * qrk::units::deg;
-    if (this->__settings != nullptr) { fov = this->__settings->fov; }
     qrk::vec2u screenSize = targetWindow->GetSize();
     qrk::mat4 projectionMatrix = qrk::CreatePerspectiveProjectionMatrix(
-            fov, (float) screenSize.x() / (float) screenSize.y(), 1.f, 100.f);
+            70.f, (float) screenSize.x() / (float) screenSize.y(), 1.f, 100.f);
     UBO3D_Data.projection = projectionMatrix;
     qrk::mat4 identity = qrk::identity4();
     UBO3D_Data.view = identity;

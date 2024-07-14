@@ -48,7 +48,7 @@ constexpr float g = 0.001f;
 constexpr float mg = 0.000001f;
 constexpr float ug = 0.000000001f;
 constexpr float ng = 0.000000000001f;
-constexpr float lb = 453.592f;
+constexpr float lb = 0.453592f;
 //angle
 constexpr float rad = 1.f;
 constexpr float deg = 0.0174533f;

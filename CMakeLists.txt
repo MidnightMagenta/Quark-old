@@ -63,6 +63,7 @@ add_library("${ProjectName}" STATIC
 	include/event.hpp
 	include/stb_truetype.hpp
 	include/rect.hpp
+	include/render_window.hpp
 )
 target_link_libraries("${ProjectName}" "${ProjectName}-dependencies" OpenGL::GL)
 target_include_directories("${ProjectName}" PUBLIC include)

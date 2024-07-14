@@ -11,7 +11,7 @@ namespace qrk {
 class Rect {
 public:
     Rect();
-    Rect(qrk::vec2f _size);
+    Rect(const qrk::vec2f &_size);
 
     void SetSize(float x, float y) { this->size = qrk::vec2f({x, y}); }
     qrk::vec2f GetSize() { return this->size; }

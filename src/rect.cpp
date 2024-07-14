@@ -17,9 +17,9 @@ qrk::Rect::Rect() {
     glBindVertexArray(0);
 }
 
-qrk::Rect::Rect(qrk::vec2f _size) {
+qrk::Rect::Rect(const qrk::vec2f &_size) {
     size = _size;
-    offset = qrk::vec2f({-_size.x() / 2, -_size.y() / 2});
+    offset = qrk::vec2f({-size.x() / 2, -size.y() / 2});
     position = qrk::vec2f({0, 0});
     rotation = 0.f;
     color = {255, 255, 255, 255};
