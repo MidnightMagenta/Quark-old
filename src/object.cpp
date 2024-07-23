@@ -1,7 +1,7 @@
 #include "../include/object.hpp"
 
 void qrk::Object::LoadObjectAsync(
-        std::string path, std::atomic_bool *finishedFlag,
+        const std::string& path, std::atomic_bool *finishedFlag,
         std::promise<std::vector<GLfloat>> _promisedData,
         std::promise<qrk::Material> _promisedMaterial) {
     //get data from file
@@ -78,8 +78,8 @@ void qrk::Object::LoadObjectAsync(
     objFile.close();
 
     //check if the data was loaded succesfully
-    if (!(object.vertexIndeces.size() == object.textureIndeces.size()) &&
-        !(object.vertexIndeces.size() == object.normalIndeces.size())) {
+    if (object.vertexIndeces.size() != object.textureIndeces.size() &&
+        object.vertexIndeces.size() != object.normalIndeces.size()) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
         qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
@@ -118,8 +118,8 @@ void qrk::Object::LoadObjectAsync(
         alignedNormals.push_back(object.normals[object.normalIndeces[i] - 1]);
     }
 
-    if (!(alignedVertices.size() == alignedTextures.size()) &&
-        !(alignedVertices.size() == alignedNormals.size())) {
+    if (alignedVertices.size() != alignedTextures.size() &&
+        alignedVertices.size() != alignedNormals.size()) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
         qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
@@ -162,7 +162,7 @@ void qrk::Object::LoadObjectAsync(
                     buffer.push_back(breakBuffer);
                     breakBuffer.clear();
                 }
-                if (buffer.size() == 0) { continue; }
+                if (buffer.empty()) { continue; }
                 if (buffer[0] == "Ks" || buffer[0] == "ks") {
                     mtl.specular = qrk::vec3f({std::stof(buffer[1]),
                                                std::stof(buffer[2]),
@@ -270,8 +270,8 @@ void qrk::Object::LoadObject(const std::string &path) {
     objFile.close();
 
     //check if data was loaded sucessfully
-    if (!(object.vertexIndeces.size() == object.textureIndeces.size()) &&
-        !(object.vertexIndeces.size() == object.normalIndeces.size())) {
+    if (object.vertexIndeces.size() != object.textureIndeces.size() &&
+        object.vertexIndeces.size() != object.normalIndeces.size()) {
         std::string error = "Failed to load object at: " + path +
                             " Index arrays have different sizes";
         qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
@@ -310,8 +310,8 @@ void qrk::Object::LoadObject(const std::string &path) {
         alignedNormals.push_back(object.normals[object.normalIndeces[i] - 1]);
     }
 
-    if (!(alignedVertices.size() == alignedTextures.size()) &&
-        !(alignedVertices.size() == alignedNormals.size())) {
+    if (alignedVertices.size() != alignedTextures.size() &&
+        alignedVertices.size() != alignedNormals.size()) {
         std::string error = "Failed to load object at: " + path +
                             " Aligned arrays have different sizes";
         qrk::debug::Error(error, qrk::debug::Q_LOADING_ERROR);
@@ -339,7 +339,6 @@ void qrk::Object::LoadObject(const std::string &path) {
     std::vector<qrk::vec2f>().swap(alignedTextures);
     object.Clear();
 
-    qrk::Material mtl;
     if (std::filesystem::exists(mtlPath)) {
         std::ifstream mtlFile(mtlPath);
         if (mtlFile.is_open()) {
@@ -356,22 +355,22 @@ void qrk::Object::LoadObject(const std::string &path) {
                 }
                 if (buffer.size() == 0) { continue; }
                 if (buffer[0] == "Ks" || buffer[0] == "ks") {
-                    mtl.specular = qrk::vec3f({std::stof(buffer[1]),
+                    this->material.specular = qrk::vec3f({std::stof(buffer[1]),
                                                std::stof(buffer[2]),
                                                std::stof(buffer[3])});
                 }
                 if (buffer[0] == "Kd" || buffer[0] == "kd") {
-                    mtl.diffuse = qrk::vec3f({std::stof(buffer[1]),
+                    this->material.diffuse = qrk::vec3f({std::stof(buffer[1]),
                                               std::stof(buffer[2]),
                                               std::stof(buffer[3])});
                 }
                 if (buffer[0] == "Ka" || buffer[0] == "ka") {
-                    mtl.ambient = qrk::vec3f({std::stof(buffer[1]),
+                    this->material.ambient = qrk::vec3f({std::stof(buffer[1]),
                                               std::stof(buffer[2]),
                                               std::stof(buffer[3])});
                 }
                 if (buffer[0] == "Ns" || buffer[0] == "ns") {
-                    mtl.shininess = std::stof(buffer[1]);
+                    this->material.shininess = std::stof(buffer[1]);
                 }
             }
         }
@@ -379,11 +378,11 @@ void qrk::Object::LoadObject(const std::string &path) {
 
     //return data and further clean up
     data = loadResult;
-    vertexNumber = (GLsizei) data.size() / 9;
+    vertexNumber = static_cast<GLsizei>(data.size()) / 9;
     std::vector<GLfloat>().swap(loadResult);
 }
 
-std::string qrk::Object::DumpObjectData(const std::string &path) {
+std::string qrk::Object::DumpObjectData(const std::string &path) const {
     std::stringstream dataDump;
     //print data to the log file
     for (int i = 0; i < data.size(); i += 9) {

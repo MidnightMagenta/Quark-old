@@ -4,7 +4,7 @@ void qrk::debug::OpenLogFile(const std::string &path) {
     if (std::filesystem::exists(path)) { std::filesystem::remove_all(path); }
     std::filesystem::create_directory(path);
     std::stringstream fullPath;
-    fullPath << path << "/log_" << time(NULL) << ".txt";
+    fullPath << path << "/log_" << time(nullptr) << ".txt";
     logFile.open(fullPath.str());
     if (!logFile.is_open()) {
         MessageBox(0, "Failed to open log file", "Warning",

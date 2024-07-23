@@ -1,7 +1,7 @@
 #ifndef QRK_DEBUG
 #define QRK_DEBUG
 
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // NOLINT(*-reserved-identifier)
 
 #include <Windows.h>
 #include <chrono>
@@ -30,10 +30,10 @@ void LogWarning(const std::string &warning);
 void LogError(const std::string &error);
 
 inline void ShowErrorBox(const std::string &error) {
-    MessageBox(0, error.c_str(), "Error", MB_OK | MB_ICONERROR);
+    MessageBox(nullptr, error.c_str(), "Error", MB_OK | MB_ICONERROR);
 }
 inline void ShowWarningBox(const std::string &error) {
-    MessageBox(0, error.c_str(), "Warning", MB_OK | MB_ICONEXCLAMATION);
+    MessageBox(nullptr, error.c_str(), "Warning", MB_OK | MB_ICONEXCLAMATION);
 }
 inline void Error(const std::string &error,
                   int code = qrk::debug::Q_DEFAULT_ERROR) {

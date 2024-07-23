@@ -7,11 +7,8 @@
 #include "../include/qrk_debug.hpp"
 #include "../include/texture.hpp"
 #include "../include/vector.hpp"
-#include <Windows.h>
 #include <filesystem>
-#include <fstream>
 #include <future>
-#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -20,8 +17,8 @@ namespace qrk {
 class Object {
 public:
     Object() = delete;
-    Object(const std::string &path, bool async = true)
-        : loadFinished(false), asyncLoad(async), vertexNumber(NULL) {
+    explicit Object(const std::string &path, bool async = true)
+        : vertexNumber(NULL), loadFinished(false), asyncLoad(async) {
         if (!std::filesystem::exists(path)) {
             qrk::debug::Error("Failed to find file: " + path,
                               qrk::debug::Q_FAILED_TO_FIND_FILE);
@@ -37,14 +34,14 @@ public:
         }
     }
 
-    ~Object() {}
+    ~Object() = default;
 
-    bool WaitForLoad(qrk::glWindow &window) {
+    bool WaitForLoad(const qrk::glWindow &window) {
         if (asyncLoad) {
             if (!data.empty()) { return false; }
             if (loadFinished) {
                 data = futureData.get();
-                vertexNumber = (GLsizei) data.size() / 9;
+                vertexNumber = static_cast<GLsizei>(data.size()) / 9;
                 material = futureMaterial.get();
                 return false;
             } else {
@@ -57,14 +54,14 @@ public:
 
     void DeleteData() { std::vector<GLfloat>().swap(data); }
 
-    std::string DumpObjectData(const std::string &path = "logs");
+    std::string DumpObjectData(const std::string &path = "logs") const;
 
     std::vector<GLfloat> data;//vertex texture normals
     qrk::Material material;
     GLsizei vertexNumber;
 
 private:
-    static void LoadObjectAsync(std::string path, std::atomic_bool *finishedFlag,
+    static void LoadObjectAsync(const std::string& path, std::atomic_bool *finishedFlag,
                          std::promise<std::vector<GLfloat>> _promisedData,
                          std::promise<qrk::Material> _promisedMaterial);
     void LoadObject(const std::string &path);
@@ -101,9 +98,10 @@ private:
 class GLObject {
 public:
     GLObject() = delete;
-    GLObject(qrk::Object &_objectData)
-        : position({0, 0, 0}), rotation({0, 0, 0}), scale({1, 1, 1}),
-          color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
+    explicit GLObject(const qrk::Object &_objectData)
+        : texture(nullptr), textured(false), VAO(0), VBO(0),
+          color({1.f, 1.f, 1.f, 1.f}), position({0, 0, 0}), rotation({0, 0, 0}),
+          scale({1, 1, 1}) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glBindVertexArray(VAO);
@@ -117,9 +115,9 @@ public:
         sclMatrix = identity;
     }
 
-    GLObject(const std::string &objectPath)
-        : position({0, 0, 0}), rotation({0, 0, 0}), scale({1, 1, 1}),
-          color({1.f, 1.f, 1.f, 1.f}), texture(nullptr), textured(false) {
+    explicit GLObject(const std::string &objectPath)
+        : texture(nullptr), textured(false), VAO(0),
+          VBO(0), color({1.f, 1.f, 1.f, 1.f}), position({0, 0, 0}), rotation({0, 0, 0}), scale({1, 1, 1}) {
         qrk::Object _objectData(objectPath, false);
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
