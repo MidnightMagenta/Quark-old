@@ -6,6 +6,8 @@
 #include "../include/qrk_debug.hpp"
 #include <string>
 
+#define Q_TEXT_TEXTURE 5
+
 namespace qrk {
 struct Texture2DSettings {
     GLuint nearFilter = GL_LINEAR;
@@ -19,6 +21,7 @@ public:
     Image() : imageData(nullptr), width(0), height(0), channels(0) {}
     Image(const std::string &path) { LoadFromFile(path); }
     void LoadFromFile(const std::string &path);
+    void LoadFromData(unsigned char *data, int _width, int _height, int _channels);
     void DeleteImage() { stbi_image_free(imageData); }
 
     unsigned char *imageData;

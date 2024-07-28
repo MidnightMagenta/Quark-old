@@ -19,7 +19,7 @@ qrk::vec2i qrk::Event::GetAbsoluteMousePosition() {
     if (!targetWindow->IsOpen()) { return qrk::vec2i({0, 0}); }
     POINT p;
     if (GetCursorPos(&p)) {
-        return qrk::vec2i({p.x, p.y});
+        return qrk::vec2i({static_cast<int>(p.x), static_cast<int>(p.y)});
     } else {
         qrk::debug::Warning("Could not get mouse position");
         return qrk::vec2i({0, 0});
@@ -35,7 +35,7 @@ qrk::vec2i qrk::Event::GetRelativeMousePosition() {
                     "Could not convert mouse position to relative coordinates");
             return qrk::vec2i({0, 0});
         }
-        return qrk::vec2i({p.x, p.y});
+        return qrk::vec2i({static_cast<int>(p.x), static_cast<int>(p.y)});
     } else {
         qrk::debug::Warning("Could not get mouse position");
         return qrk::vec2i({0, 0});

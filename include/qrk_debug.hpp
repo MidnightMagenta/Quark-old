@@ -5,23 +5,27 @@
 
 #include <Windows.h>
 #include <chrono>
-#include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 #include <string>
 
 namespace qrk::debug {
 enum Error {
     Q_NO_ERROR = 0,
     Q_DEFAULT_ERROR = 1,
-    Q_FAILED_TO_COMPILE_SHADER = 2,
-    Q_FAILED_TO_FIND_FILE = 3,
-    Q_LOADING_ERROR = 4,
-    Q_FAILED_TO_LOAD_IMAGE = 5,
-    Q_FAILED_TO_CREATE_WINDOW = 6,
-    Q_FAILED_TO_CREATE_CONTEXT = 7,
-    Q_INVALID_DRAW = 8
+    //graphics API errors
+    Q_FAILED_TO_COMPILE_SHADER,
+    Q_FAILED_TO_CREATE_WINDOW,
+    Q_FAILED_TO_CREATE_CONTEXT,
+    Q_INVALID_DRAW,
+    //filesystem errors
+    Q_FAILED_TO_FIND_FILE,
+    Q_FAILED_TO_OPEN_FILE,
+    Q_FAILED_TO_LOAD_IMAGE,
+    Q_FAILED_TO_LOAD_FONT,
+    Q_LOADING_ERROR,
+    //programming errors
+    Q_INVALID_ENUM
 };
 
 void OpenLogFile(const std::string &path = "logs");

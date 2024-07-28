@@ -8,6 +8,13 @@ void qrk::Image::LoadFromFile(const std::string &path) {
                           qrk::debug::Q_FAILED_TO_LOAD_IMAGE);
     }
 }
+void qrk::Image::LoadFromData(unsigned char *data, int _width, int _height,
+                              int _channels) {
+    imageData = data;
+    width = _width;
+    height = _height;
+    channels = _channels;
+}
 
 void qrk::Texture2D::LoadFromFile(const std::string &path,
                                   const qrk::Texture2DSettings &settings) {
@@ -78,10 +85,22 @@ void qrk::Texture2D::LoadFromImage(qrk::Image &image,
 
     switch (image.channels) {
         case STBI_grey:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, image.width, image.height, 0,
+                         GL_RED, GL_UNSIGNED_BYTE, image.imageData);
+            break;
+        case Q_TEXT_TEXTURE:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, image.width, image.height, 0,
                          GL_RED, GL_UNSIGNED_BYTE, image.imageData);
             break;
         case STBI_grey_alpha:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_GREEN);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, image.width, image.height, 0,
                          GL_RG, GL_UNSIGNED_BYTE, image.imageData);
             break;

@@ -36,10 +36,9 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
     //create the 3d UBO
     glGenBuffers(1, &UBO3D);
     glBindBuffer(GL_UNIFORM_BUFFER, UBO3D);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), &UBO3D_Data,
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData3D), nullptr,
                  GL_DYNAMIC_COPY);
     glBindBufferBase(GL_UNIFORM_BUFFER, 3, UBO3D);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     //create the light source SSBO
     glGenBuffers(1, &lightSource_SSBO);
@@ -64,6 +63,21 @@ qrk::qb_GL_Renderer::qb_GL_Renderer(qrk::glWindow &_targetWindow,
     glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformData2D), &UBO2D_Data,
                  GL_DYNAMIC_COPY);
     glBindBufferBase(GL_UNIFORM_BUFFER, 2, UBO2D);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    //compile the text program
+    q_textDraw =
+            qrk::assets::Program("resources/shaders/text_vertex_shader.vert",
+                                 "resources/shaders/text_fragment_shader.frag");
+    textureID_Text =
+            glGetUniformLocation(q_textDraw.programHandle, "f_texture");
+    //create the text UBO
+    glGenBuffers(1, &UBO_Text);
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO_Text);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(UniformDataText), nullptr,
+                 GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, UBO_Text);
+
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -125,6 +139,9 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(1);
         glDisableVertexAttribArray(2);
     }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //2d draw
     this->q_2dDraw.UseProgram();
@@ -172,6 +189,9 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //UI draw
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -218,11 +238,48 @@ void qrk::qb_GL_Renderer::Draw() {
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    //text drawing
+    q_textDraw.UseProgram();
+    float screenSizeX = static_cast<float>(screenSize.x());
+    float screenSizeY = static_cast<float>(screenSize.y());
+    UBO_Text_data.screenSize = qrk::vec2f({screenSizeX, screenSizeY});
+    for (int i = 0; i < q_Text.size(); i++) {
+        UBO_Text_data.color =
+                qrk::vec4f({q_Text[i].color.r, q_Text[i].color.b,
+                            q_Text[i].color.g, q_Text[i].color.a});
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO_Text);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UniformDataText),
+                        &UBO_Text_data);
+        glUniformBlockBinding(q_textDraw.programHandle,
+                              q_textDraw.uniformBlockIndex, 1);
+        glBindBuffer(GL_UNIFORM_BUFFER, UBO2D);
+        q_Text[i].texture->BindTexture();
+        glUniform1i(textureID_Text, 0);
+
+        glBindVertexArray(q_Text[i].VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, q_Text[i].VBO);
+
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat),
+                              (void *) (2 * sizeof(GLfloat)));
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glDrawArrays(GL_TRIANGLES, 0, q_Text[i].vertexCount);
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+    }
 
     //clean up
     q_3dObjects.clear();
     q_2dObjects.clear();
     q_UIObjects.clear();
+    q_Text.clear();
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

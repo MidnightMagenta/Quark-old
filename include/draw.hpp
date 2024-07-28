@@ -14,6 +14,7 @@
 #include <vector>
 
 namespace qrk {
+//draw data types
 struct DrawData_3D {
     GLuint VAO = 0;
     GLuint VBO = 0;
@@ -37,9 +38,18 @@ struct DrawData_2D {
     float rotation = 0.f;
     GLsizei vertexCount = 0;
 };
+struct DrawData_Text {
+    GLuint VAO = 0;
+    GLuint VBO = 0;
+    qrk::ColorF color = {1.f, 1.f, 1.f, 1.f};
+    qrk::Texture2D *texture = nullptr;
+    GLsizei vertexCount = 0;
+};
 template<typename T>
 concept drawDataStruct =
-        std::is_same_v<T, DrawData_3D> || std::is_same_v<T, DrawData_2D>;
+        std::is_same_v<T, DrawData_3D> || std::is_same_v<T, DrawData_2D> ||
+        std::is_same_v<T, DrawData_Text>;
+
 struct Material {
     float shininess = 25.f;
     char padding[12];
@@ -62,6 +72,11 @@ struct UniformData2D {
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::vec2f size = qrk::vec2f({1, 1});
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+};
+struct UniformDataText {
+    qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+    qrk::vec2f screenSize = qrk::vec2f({0, 0});
+    char padding[8];
 };
 struct LightSource {
     LightSource() {
@@ -126,6 +141,8 @@ public:
             } else {
                 Queue2dDraw(drawData);
             }
+        } else if constexpr (std::is_same_v<draw_t, DrawData_Text>) {
+            QueueTextDraw(drawData);
         } else {
             qrk::debug::Error("Invalid draw call", qrk::debug::Q_INVALID_DRAW);
         }
@@ -155,6 +172,7 @@ private:
     std::vector<DrawData_3D> q_3dObjects;
     std::vector<DrawData_2D> q_2dObjects;
     std::vector<DrawData_2D> q_UIObjects;
+    std::vector<DrawData_Text> q_Text;
     std::vector<LightSource> q_3dLightSources;
 
 
@@ -172,6 +190,11 @@ private:
     GLuint UBO2D;
     GLuint textureID_2d;
     GLuint texturedID_2d;
+    //text draw program and associated uniform locations
+    qrk::assets::Program q_textDraw;
+    qrk::UniformDataText UBO_Text_data;
+    GLuint UBO_Text;
+    GLuint textureID_Text;
 
     //misc variables
     qrk::glWindow *targetWindow;
@@ -184,6 +207,9 @@ private:
     }
     void QueueUIDraw(const DrawData_2D &drawData) {
         q_UIObjects.push_back(drawData);
+    }
+    void QueueTextDraw(const DrawData_Text &drawData) {
+        q_Text.push_back(drawData);
     }
 };
 }// namespace qrk

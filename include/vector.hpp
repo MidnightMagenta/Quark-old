@@ -160,7 +160,6 @@ public:
     }
 
     std::array<t_vector, 2> data;
-
 public:
     inline t_vector &x() { return data[0]; }
     inline t_vector &y() { return data[1]; }
