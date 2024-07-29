@@ -24,7 +24,7 @@ add_subdirectory(Engine)
 
 add_executable("${ProjectName}-test"
         #src files
-        src/main.cpp
+        Engine/src/main.cpp
         #header files
 )
 
