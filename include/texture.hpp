@@ -19,10 +19,15 @@ struct Texture2DSettings {
 class Image {
 public:
     Image() : imageData(nullptr), width(0), height(0), channels(0) {}
-    Image(const std::string &path) { LoadFromFile(path); }
+    explicit Image(const std::string &path) { LoadFromFile(path); }
+    ~Image() { DeleteImage(); }
     void LoadFromFile(const std::string &path);
-    void LoadFromData(unsigned char *data, int _width, int _height, int _channels);
-    void DeleteImage() { stbi_image_free(imageData); }
+    void LoadFromData(unsigned char *data, int _width, int _height,
+                      int _channels);
+    void DeleteImage() {
+        stbi_image_free(imageData);
+        imageData = nullptr;
+    }
 
     unsigned char *imageData;
     int width;
@@ -38,6 +43,7 @@ public:
         : texture(0) {
         LoadFromFile(path);
     }
+    ~Texture2D() { DeleteTexture(); }
     void LoadFromFile(const std::string &path,
                       const qrk::Texture2DSettings &settings = {
                               GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT});
