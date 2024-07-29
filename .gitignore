@@ -12,7 +12,5 @@ _deps
 .vs/
 out/
 /diagnostics
-/console_clock
-/clock
 /resources/objects/non_test_objects
 /resources/textures/non_test_textures

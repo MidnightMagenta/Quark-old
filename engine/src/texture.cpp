@@ -70,13 +70,8 @@ void qrk::Texture2D::LoadFromFile(const std::string &path,
 void qrk::Texture2D::LoadFromImage(qrk::Image &image,
                                    const qrk::Texture2DSettings &settings) {
     if (this->texture != 0) {
-        qrk::debug::LogWarning("Binding texture to an existing texture object "
-                               "without explicitly deleting the object");
-#ifdef _DEBUG
-        qrk::debug::ShowWarningBox(
-                "Binding texture to an existing texture object without "
-                "explicitly deleting the object");
-#endif// _DEBUG
+        qrk::debug::Warning("Binding texture to an existing texture object "
+                            "without explicitly deleting the object");
         DeleteTexture();
     }
     glActiveTexture(GL_TEXTURE0);
