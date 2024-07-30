@@ -158,6 +158,7 @@ void qrk::qb_GL_Renderer::Draw() {
         qrk::mat4 rotMatrix =
                 qrk::CreateRotationMatrix(q_2dObjects[i].rotation, 0.f, 0.f);
         UBO2D_Data.rotation = rotMatrix;
+        UBO2D_Data.zLayer = q_2dObjects[i].zLayer;
         UBO2D_Data.color =
                 qrk::vec4f({q_2dObjects[i].color.r, q_2dObjects[i].color.b,
                             q_2dObjects[i].color.g, q_2dObjects[i].color.a});
@@ -207,6 +208,7 @@ void qrk::qb_GL_Renderer::Draw() {
         qrk::mat4 rotMatrix =
                 qrk::CreateRotationMatrix(q_UIObjects[i].rotation, 0.f, 0.f);
         UBO2D_Data.rotation = rotMatrix;
+        UBO2D_Data.zLayer = q_UIObjects[i].zLayer;
         UBO2D_Data.color =
                 qrk::vec4f({q_UIObjects[i].color.r, q_UIObjects[i].color.b,
                             q_UIObjects[i].color.g, q_UIObjects[i].color.a});
@@ -248,6 +250,7 @@ void qrk::qb_GL_Renderer::Draw() {
     float screenSizeY = static_cast<float>(screenSize.y());
     UBO_Text_data.screenSize = qrk::vec2f({screenSizeX, screenSizeY});
     for (int i = 0; i < q_Text.size(); i++) {
+        UBO_Text_data.zLayer = q_Text[i].zLayer;
         UBO_Text_data.color =
                 qrk::vec4f({q_Text[i].color.r, q_Text[i].color.b,
                             q_Text[i].color.g, q_Text[i].color.a});

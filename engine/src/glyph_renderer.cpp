@@ -114,5 +114,6 @@ qrk::DrawData_Text qrk::Text::GetDrawData() {
     drawData.color = qrk::ConvertToFloat(color);
     drawData.texture = &font->texture;
     drawData.vertexCount = 6 * text.size();
+    drawData.zLayer = zLayer;
     return drawData;
 }

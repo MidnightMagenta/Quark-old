@@ -25,7 +25,8 @@ enum Error {
     Q_FAILED_TO_LOAD_FONT,
     Q_LOADING_ERROR,
     //programming errors
-    Q_INVALID_ENUM
+    Q_INVALID_ENUM,
+    Q_RUNTIME_ERROR
 };
 
 void OpenLogFile(const std::string &path = "logs");

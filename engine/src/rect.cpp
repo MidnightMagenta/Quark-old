@@ -45,5 +45,6 @@ qrk::DrawData_2D qrk::Rect::GetDrawData() {
     data.texture = this->texture;
     data.rotation = this->rotation;
     data.vertexCount = this->vertices.size() / 4;
+    data.zLayer = zLayer;
     return data;
 }

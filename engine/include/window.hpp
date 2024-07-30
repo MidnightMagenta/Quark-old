@@ -77,14 +77,15 @@ public:
     void q_HideCursor() { ShowCursor(FALSE); }
     void q_ShowCursor() { ShowCursor(TRUE); }
     qrk::vec2u GetSize() const {
+        if(!IsOpen()) {
+            return qrk::vec2u({0, 0});
+        }
         RECT windowRect;
         if (!GetClientRect(window, &windowRect)) {
             std::string error =
                     "Could not retrieve window size information. Error code: " +
                     std::to_string(GetLastError());
-            qrk::debug::ShowErrorBox(error);
-            qrk::debug::LogError(error);
-            return qrk::vec2u({0, 0});
+            qrk::debug::Error(error, qrk::debug::Q_RUNTIME_ERROR);
         }
         return qrk::vec2u(
                 {(unsigned int) (windowRect.right - windowRect.left),

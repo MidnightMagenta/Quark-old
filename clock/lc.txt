@@ -1,7 +1,9 @@
 -Directories
+engine/include/
+engine/src/
 include/
 src/
-shaders/
+resources/shaders/
 
 -Extensions
 .h

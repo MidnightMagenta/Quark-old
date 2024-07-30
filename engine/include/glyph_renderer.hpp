@@ -102,6 +102,11 @@ public:
     }
     qrk::vec2f GetPosition() { return position; }
 
+    /// Set z layer betwen -1 and 1
+    void SetLayer(const float layer) {
+        zLayer = -std::clamp(layer, -0.999f, 0.999f);
+    }
+
     qrk::DrawData_Text GetDrawData();
 
 private:
@@ -114,6 +119,7 @@ private:
 
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::Color color = {255, 255, 255, 255};
+    float zLayer = 0.f;
 };
 }// namespace qrk
 

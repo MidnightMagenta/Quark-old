@@ -34,6 +34,7 @@ struct DrawData_2D {
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::vec2f size = qrk::vec2f({100, 100});
     qrk::ColorF color = {1.f, 1.f, 1.f, 1.f};
+    float zLayer = 0.f;
     qrk::Texture2D *texture = nullptr;
     float rotation = 0.f;
     GLsizei vertexCount = 0;
@@ -41,6 +42,7 @@ struct DrawData_2D {
 struct DrawData_Text {
     GLuint VAO = 0;
     GLuint VBO = 0;
+    float zLayer = 0.f;
     qrk::ColorF color = {1.f, 1.f, 1.f, 1.f};
     qrk::Texture2D *texture = nullptr;
     GLsizei vertexCount = 0;
@@ -72,11 +74,13 @@ struct UniformData2D {
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::vec2f size = qrk::vec2f({1, 1});
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
+    float zLayer = 0.f;
 };
 struct UniformDataText {
     qrk::vec4f color = qrk::vec4f({1, 1, 1, 1});
     qrk::vec2f screenSize = qrk::vec2f({0, 0});
-    char padding[8];
+    float zLayer = 0.f;
+    char padding[4];
 };
 struct LightSource {
     LightSource() {

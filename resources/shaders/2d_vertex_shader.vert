@@ -8,6 +8,7 @@ layout(std140, row_major) uniform uniformBlock{
     vec2 position;
     vec2 size;
     vec4 color;
+    float zLayer;
 };
 
 out vec2 f_texturePos;
@@ -19,5 +20,7 @@ void main()
     f_color = color;
     vec4 vPos = vec4(vertexPos * size, 0, 1);
     vPos = rotation * vPos;
-    gl_Position = vPos + vec4(position, 0, 0);
+    vec4 finalPos = vPos + vec4(position, 0, 0);
+    finalPos.z = zLayer;
+    gl_Position = finalPos;
 }

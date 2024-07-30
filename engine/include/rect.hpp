@@ -31,6 +31,11 @@ public:
     void SetTexture(qrk::Texture2D &_texture) { texture = &_texture; }
     void RemoveTexture() { texture = nullptr; }
 
+    /// Set z layer betwen -1 and 1
+    void SetLayer(const float layer) {
+        zLayer = -std::clamp(layer, -0.999f, 0.999f);
+    }
+
     qrk::DrawData_2D GetDrawData();
 
 private:
@@ -38,6 +43,7 @@ private:
     qrk::vec2f position;
     qrk::vec2f offset;
     float rotation;
+    float zLayer = 0.f;
     qrk::Color color;
     qrk::Texture2D *texture;
 
