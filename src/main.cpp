@@ -16,23 +16,21 @@ int run() {
     qrk::Object obj("resources/objects/smooth_uv_sphere.obj");
 
     qrk::Rect rect;
-    rect.SetSize(window.GetWindow().GetSize().x(),
-                 window.GetWindow().GetSize().y());
-    rect.SetPosition(0, 0);
+    rect.SetSize(window.GetWindow().GetSize().x() / 2,
+                 window.GetWindow().GetSize().y() / 2);
+    rect.SetPosition(200, 200);
     rect.SetOffset(-rect.GetSize().x() / 2, -rect.GetSize().y() / 2);
+    rect.SetTexture(texture);
 
     qrk::Font fnt("resources/fonts/ariblk.ttf", 60, 500);
     qrk::Text fpsText(fnt);
-    rect.SetTexture(texture);
+    fpsText.SetPosition(10, 10);
     qrk::debug::FrameCounter fc;
 
     while (obj.WaitForLoad(window.GetWindow()) && window.IsOpen()) {
         window.ClearWindow();
         fpsText.SetText("FPS: " +
                         qrk::misc::to_string_precision(fc.GetFrameRate(), 2));
-        fpsText.SetPosition(
-                -static_cast<float>(window.GetWindow().GetSize().x()) / 2 + 10,
-                -static_cast<float>(window.GetWindow().GetSize().y()) / 2);
         window.QueueDraw(fpsText.GetDrawData());
         window.Draw();
     }
@@ -49,11 +47,8 @@ int run() {
         window.ClearWindow();
         fpsText.SetText("FPS: " +
                         qrk::misc::to_string_precision(fc.GetFrameRate(), 2));
-        fpsText.SetPosition(
-                -static_cast<float>(window.GetWindow().GetSize().x()) / 2 + 10,
-                -static_cast<float>(window.GetWindow().GetSize().y()) / 2);
         window.QueueDraw(rect.GetDrawData());
-        window.QueueDraw(gl_obj.GetDrawData());
+        //window.QueueDraw(gl_obj.GetDrawData());
         window.QueueDraw(fpsText.GetDrawData());
         window.Draw();
     }

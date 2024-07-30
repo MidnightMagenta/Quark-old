@@ -98,12 +98,14 @@ public:
     std::string GetText() { return text; }
 
     void SetColor(const qrk::Color &_color) { color = _color; }
-    qrk::Color GetColor() const {return color;}
+    qrk::Color GetColor() const { return color; }
 
     void SetPosition(const float x, const float y) {
         position = qrk::vec2f({x, y});
     }
     qrk::vec2f GetPosition() { return position; }
+
+    void SetSpacing(int _spacing) { spacing = _spacing; }
 
     /// Set z layer betwen -1 and 1
     void SetLayer(const float layer) {
@@ -117,7 +119,7 @@ private:
     GLuint VBO = 0;
 
     qrk::Font *font;
-    float spacing = 10;
+    float spacing = 0;
     std::string text = "";
 
     qrk::vec2f position = qrk::vec2f({0, 0});

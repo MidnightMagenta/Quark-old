@@ -13,7 +13,7 @@ out vec4 f_color;
 out vec2 f_texturePosition;
 
 void main(){
-    gl_Position = vec4(vertexPosition.x / screenSize.x, -vertexPosition.y / screenSize.y, zLayer, 1);
+    gl_Position = vec4((vertexPosition.x - (screenSize.x)) / screenSize.x, (-vertexPosition.y + screenSize.y) / screenSize.y, zLayer, 1);
 
     f_color = color;
     f_texturePosition = texturePosition;

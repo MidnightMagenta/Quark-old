@@ -70,37 +70,37 @@ qrk::DrawData_Text qrk::Text::GetDrawData() {
     for (int i = 0; i < text.size(); i++) {
         qrk::Font::GlyphData *glyph = font->GetGlyphData(text[i]);
         //vertex 0
-        vertexArray.push_back(glyph->point_1.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_0.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_1.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_0.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_1.x());
         vertexArray.push_back(glyph->texture_0.y());
         //vertex 1
-        vertexArray.push_back(glyph->point_0.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_0.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_0.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_0.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_0.x());
         vertexArray.push_back(glyph->texture_0.y());
         //vertex 2
-        vertexArray.push_back(glyph->point_0.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_1.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_0.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_1.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_0.x());
         vertexArray.push_back(glyph->texture_1.y());
         //vertex 3
-        vertexArray.push_back(glyph->point_0.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_1.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_0.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_1.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_0.x());
         vertexArray.push_back(glyph->texture_1.y());
         //vertex 4
-        vertexArray.push_back(glyph->point_1.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_1.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_1.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_1.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_1.x());
         vertexArray.push_back(glyph->texture_1.y());
         //vertex 5
-        vertexArray.push_back(glyph->point_1.x() + totalShift + spacing + position.x() * 2);
-        vertexArray.push_back(glyph->point_0.y() + font->fontHeight + position.y() * 2);
+        vertexArray.push_back(glyph->point_1.x() + totalShift + position.x() * 2);
+        vertexArray.push_back(glyph->point_0.y() + font->fontHeight / 2 + position.y() * 2);
         vertexArray.push_back(glyph->texture_1.x());
         vertexArray.push_back(glyph->texture_0.y());
 
-        totalShift += glyph->shift;
+        totalShift += glyph->shift + spacing;
     }
 
     glBindVertexArray(VAO);
