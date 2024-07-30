@@ -53,18 +53,47 @@ int run() {
                 -static_cast<float>(window.GetWindow().GetSize().x()) / 2 + 10,
                 -static_cast<float>(window.GetWindow().GetSize().y()) / 2);
         window.QueueDraw(rect.GetDrawData());
-        //window.QueueDraw(gl_obj.GetDrawData());
+        window.QueueDraw(gl_obj.GetDrawData());
         window.QueueDraw(fpsText.GetDrawData());
         window.Draw();
     }
     return 1;
 }
 
-int main() {
+#ifdef SUBSYSTEM_CONSOLE
+int main(){
     try {
         return run();
-    } catch (std::exception &e) { return std::stoi(e.what()); } catch (...) {
+    } catch (std::exception &e) {
+        try {
+            return std::stoi(e.what());
+        } catch (...) {
+            const std::string error(e.what());
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
+            return -1;
+        }
+    } catch (...) {
         qrk::debug::LogError("Unhandled exception");
         return -1;
     }
 }
+#elif SUBSYSTEM_WINDOWS
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    try {
+        return run();
+    } catch (std::exception &e) {
+        try {
+            return std::stoi(e.what());
+        } catch (...) {
+            const std::string error(e.what());
+            qrk::debug::ShowErrorBox(error);
+            qrk::debug::LogError(error);
+            return -1;
+        }
+    } catch (...) {
+        qrk::debug::LogError("Unhandled exception");
+        return -1;
+    }
+}
+#endif

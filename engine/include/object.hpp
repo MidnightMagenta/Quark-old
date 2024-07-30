@@ -148,8 +148,8 @@ public:
         qrk::mat4 tempMatrix = qrk::CreateScaleMatrix(x, y, z);
         sclMatrix = tempMatrix;
     }
-    void SetColor(qrk::Color _color) { color = qrk::ConvertToFloat(_color); }
-    void SetColor(qrk::ColorF _color) { color = _color; }
+    void SetColor(const qrk::Color &_color) { color = qrk::ConvertToFloat(_color); }
+    void SetColor(const qrk::ColorF &_color) { color = _color; }
     void SetTexture(qrk::Texture2D &_texture) {
         texture = &_texture;
         textured = true;

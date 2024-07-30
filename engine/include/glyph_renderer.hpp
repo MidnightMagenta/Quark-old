@@ -45,7 +45,7 @@ public:
     int fontHeight;
 };
 class Text {
-//public:
+    //public:
     // class Glyph {
     // public:
     //     Glyph() {
@@ -96,6 +96,9 @@ public:
 
     void SetText(const std::string &_text) { text = _text; }
     std::string GetText() { return text; }
+
+    void SetColor(const qrk::Color &_color) { color = _color; }
+    qrk::Color GetColor() const {return color;}
 
     void SetPosition(const float x, const float y) {
         position = qrk::vec2f({x, y});
