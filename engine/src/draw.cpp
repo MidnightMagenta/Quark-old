@@ -96,7 +96,7 @@ void qrk::qb_GL_Renderer::Draw() {
             70.f, (float) screenSize.x() / (float) screenSize.y(), 1.f, 100.f);
     UBO3D_Data.projection = projectionMatrix;
     qrk::mat4 identity = qrk::identity4();
-    UBO3D_Data.view = identity;
+    UBO3D_Data.view = identity; //temporary hack. The view matrix comes from the camera, don't write some stupidass function in the renderer, okay?
 
     for (int i = 0; i < q_3dObjects.size(); i++) {
         UBO3D_Data.position = q_3dObjects[i].position;

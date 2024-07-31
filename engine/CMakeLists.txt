@@ -12,7 +12,7 @@ target_include_directories("${ProjectName}-dependencies" PUBLIC
         dependencies/KHR
 )
 
-add_library("${ProjectName}" STATIC
+add_library("${ProjectName}-engine" STATIC
         #src files
         src/window.cpp
         src/object.cpp
@@ -49,5 +49,5 @@ add_library("${ProjectName}" STATIC
         include/glyph_renderer.hpp
         include/misc_functions.hpp
 )
-target_link_libraries("${ProjectName}" "${ProjectName}-dependencies" OpenGL::GL)
-target_include_directories("${ProjectName}" PUBLIC Engine/include)
+target_link_libraries("${ProjectName}-engine" "${ProjectName}-dependencies" OpenGL::GL)
+target_include_directories("${ProjectName}-engine" PUBLIC Engine/include)

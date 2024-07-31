@@ -4,6 +4,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(ProjectName "Quark")
 set(Subsystem "CONSOLE")
+set(testing false)
 
 project("${ProjectName}" VERSION 0.1)
 set(CMAKE_CXX_STANDARD 20)
@@ -23,25 +24,40 @@ add_custom_target(q_copy_resources ALL
 
 add_subdirectory(Engine)
 
-if(Subsystem STREQUAL "CONSOLE")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
-elseif (Subsystem STREQUAL "WINDOWS")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
-endif ()
-
-add_executable("${ProjectName}-app"
+#app executable
+add_executable("${ProjectName}"
         #src files
         src/main.cpp
         #header files
 )
 
 if(Subsystem STREQUAL "CONSOLE")
-    set_target_properties("${ProjectName}-app" PROPERTIES LINK_FLAGS /SUBSYSTEM:CONSOLE)
-    target_compile_definitions("${ProjectName}-app" PRIVATE SUBSYSTEM_CONSOLE)
+    set_target_properties("${ProjectName}" PROPERTIES LINK_FLAGS /SUBSYSTEM:CONSOLE)
+    target_compile_definitions("${ProjectName}" PRIVATE SUBSYSTEM_CONSOLE)
 elseif (Subsystem STREQUAL "WINDOWS")
-    set_target_properties("${ProjectName}-app" PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
-    target_compile_definitions("${ProjectName}-app" PRIVATE SUBSYSTEM_WINDOWS)
+    set_target_properties("${ProjectName}" PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
+    target_compile_definitions("${ProjectName}" PRIVATE SUBSYSTEM_WINDOWS)
 endif ()
 
-add_dependencies("${ProjectName}-app" q_start_clock q_copy_resources)
-target_link_libraries("${ProjectName}-app" "${ProjectName}")
+add_dependencies("${ProjectName}" q_start_clock q_copy_resources)
+target_link_libraries("${ProjectName}" "${ProjectName}-engine")
+
+#Codebase testing executable
+if(testing)
+    add_executable("${ProjectName}-test"
+            #src files
+            testing/src/main.cpp
+            #header files
+    )
+
+    if(Subsystem STREQUAL "CONSOLE")
+        set_target_properties("${ProjectName}-test" PROPERTIES LINK_FLAGS /SUBSYSTEM:CONSOLE)
+        target_compile_definitions("${ProjectName}-test" PRIVATE SUBSYSTEM_CONSOLE)
+    elseif (Subsystem STREQUAL "WINDOWS")
+        set_target_properties("${ProjectName}-test" PROPERTIES LINK_FLAGS /SUBSYSTEM:WINDOWS)
+        target_compile_definitions("${ProjectName}-test" PRIVATE SUBSYSTEM_WINDOWS)
+    endif ()
+
+    add_dependencies("${ProjectName}-test" q_start_clock q_copy_resources)
+    target_link_libraries("${ProjectName}-test" "${ProjectName}-engine")
+endif ()

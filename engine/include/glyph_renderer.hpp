@@ -18,7 +18,7 @@ public:
 
 public:
     Font() = default;
-    Font(std::string path, int fontSize, int bitmapSize = 400,
+    Font(std::string path, int fontSize, int bitmapSize = 1000,
          int _firstGlyph = 32, int _glyphCount = 95);
     ~Font() {
         texture_bitmap.DeleteImage();
@@ -45,46 +45,6 @@ public:
     int fontHeight;
 };
 class Text {
-    //public:
-    // class Glyph {
-    // public:
-    //     Glyph() {
-    //         glGenVertexArrays(1, &VAO);
-    //         glGenBuffers(1, &VBO);
-    //         glBindVertexArray(VAO);
-    //         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //         std::vector<GLfloat> vertexData = ConvertToGlArray();
-    //         glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(GLfloat),
-    //                      vertexData.data(), GL_STATIC_DRAW);
-    //     }
-    //
-    // private:
-    //     std::vector<GLfloat> ConvertToGlArray() {
-    //         std::vector<GLfloat> vertexData;
-    //         for (int i = 0; i < vertices.size(); i++) {
-    //             vertexData.push_back(vertices[i].x());
-    //             vertexData.push_back(vertices[i].y());
-    //             vertexData.push_back(textures[i].x());
-    //             vertexData.push_back(textures[i].y());
-    //         }
-    //         return vertexData;
-    //     }
-    //
-    //     GLuint VAO = 0;
-    //     GLuint VBO = 0;
-    //     qrk::vec2f position;
-    //     qrk::vec2f size;
-    //
-    //     std::array<qrk::vec2f, 6> vertices = {
-    //             qrk::vec2f({1, 1}),   qrk::vec2f({-1, 1}), qrk::vec2f({-1, -1}),
-    //             qrk::vec2f({-1, -1}), qrk::vec2f({1, -1}), qrk::vec2f({1, 1}),
-    //     };
-    //     std::array<qrk::vec2f, 6> textures = {
-    //             qrk::vec2f({1, 0}), qrk::vec2f({0, 0}), qrk::vec2f({0, 1}),
-    //             qrk::vec2f({0, 1}), qrk::vec2f({1, 1}), qrk::vec2f({1, 0}),
-    //     };
-    // };
-
 public:
     Text() = default;
     explicit Text(qrk::Font &_font) {
@@ -94,8 +54,20 @@ public:
     }
     ~Text() = default;
 
-    void SetText(const std::string &_text) { text = _text; }
+    void SetText(const std::string &_text) {
+        text = _text;
+        float _textWidth = 0;
+        for (int i = 0; i < text.size(); i++) {
+            qrk::Font::GlyphData *glyph = font->GetGlyphData(text[i]);
+            _textWidth += glyph->shift + spacing;
+        }
+        _textWidth /= 2;
+        textWidth = std::round(_textWidth);
+    }
     std::string GetText() { return text; }
+
+    int GetWidth() const { return textWidth; }
+    int GetHeight() const { return font->fontHeight / 3; }
 
     void SetColor(const qrk::Color &_color) { color = _color; }
     qrk::Color GetColor() const { return color; }
@@ -121,6 +93,7 @@ private:
     qrk::Font *font;
     float spacing = 0;
     std::string text = "";
+    int textWidth = 0;
 
     qrk::vec2f position = qrk::vec2f({0, 0});
     qrk::Color color = {255, 255, 255, 255};
