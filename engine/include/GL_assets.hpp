@@ -5,10 +5,7 @@
 #include "../include/qrk_debug.hpp"
 #include <Windows.h>
 #include <filesystem>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <vector>
 
 namespace qrk::assets {
 

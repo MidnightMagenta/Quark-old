@@ -5,12 +5,10 @@
 #define Q_DIRECTIONAL 1
 
 #include "../include/GL_assets.hpp"
-#include "../include/constants.hpp"
 #include "../include/matrix.hpp"
 #include "../include/texture.hpp"
 #include "../include/vector.hpp"
 #include "../include/window.hpp"
-#include "glad/glad.h"
 #include <vector>
 
 namespace qrk {

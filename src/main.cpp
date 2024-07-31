@@ -55,6 +55,7 @@ int run() {
     return 1;
 }
 
+#include <../include/qrk_debug.hpp>
 #ifdef SUBSYSTEM_CONSOLE
 int main(){
     try {

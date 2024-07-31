@@ -2,7 +2,6 @@
 #define Q_EVENT
 
 #include "../include/window.hpp"
-#include <windowsx.h>
 
 namespace qrk {
 enum KEY {

@@ -6,7 +6,6 @@
 #include "../include/qrk_debug.hpp"
 #include "../include/vector.hpp"
 #include <Windows.h>
-#include <iostream>
 #include <string>
 #include <windowsx.h>
 

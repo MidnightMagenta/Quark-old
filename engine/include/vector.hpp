@@ -1,7 +1,6 @@
 #ifndef QRK_VECTOR
 #define QRK_VECTOR
 
-#include "../glad/glad.h"
 #include "../include/matrix.hpp"
 #include <iostream>
 #include <stdint.h>
