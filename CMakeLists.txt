@@ -12,9 +12,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 find_package(OpenGL REQUIRED)
 
 add_custom_target(q_start_clock ALL
-        COMMENT "Starting console clock"
-        COMMAND "${PROJECT_SOURCE_DIR}/console_clock/bin/run.bat"
+    COMMENT "Starting console clock"
+    COMMAND "${PROJECT_SOURCE_DIR}/console_clock/bin/run.bat"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/console_clock/bin"
 )
+
 add_custom_target(q_copy_resources ALL
         COMMENT "Copying resources directory"
         COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -1,0 +1,20 @@
+^C:\USERS\BORBG\DOCUMENTS\PROJECTS\QUARK\BUILD\CMAKEFILES\4CBF12E4B53D32A6FB7DE215056F9001\Q_START_CLOCK.RULE
+setlocal
+call C:\Users\borbg\Documents\Projects\Quark\console_clock\bin\run.bat
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\BORBG\DOCUMENTS\PROJECTS\QUARK\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/borbg/Documents/Projects/Quark -BC:/Users/borbg/Documents/Projects/Quark/build --check-stamp-file C:/Users/borbg/Documents/Projects/Quark/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

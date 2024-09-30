@@ -1,0 +1,24 @@
+﻿  Building Custom Rule C:/Users/borbg/Documents/Projects/Quark/engine/CMakeLists.txt
+  window.cpp
+  object.cpp
+  GL_assets.cpp
+  qrk_debug.cpp
+  draw.cpp
+  image.cpp
+  texture.cpp
+  event.cpp
+  stb_truetype.cpp
+  rect.cpp
+C:\Users\borbg\Documents\Projects\Quark\engine\src\rect.cpp(47,46): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
+  glyph_renderer.cpp
+C:\Users\borbg\Documents\Projects\Quark\engine\include\glyph_renderer.hpp(65,31): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  (compiling source file '../../engine/src/glyph_renderer.cpp')
+  
+C:\Users\borbg\Documents\Projects\Quark\engine\include\glyph_renderer.hpp(80,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  (compiling source file '../../engine/src/glyph_renderer.cpp')
+  
+C:\Users\borbg\Documents\Projects\Quark\engine\src\glyph_renderer.cpp(116,30): warning C4267: '=': conversion from 'size_t' to 'GLsizei', possible loss of data
+  stb_rectPack.cpp
+  misc_functions.cpp
+  Generating Code...
+  Quark-engine.vcxproj -> C:\Users\borbg\Documents\Projects\Quark\build\engine\Debug\Quark-engine.lib

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\borbg\Documents\Projects\Quark\build\CMakeFiles\4cbf12e4b53d32a6fb7de215056f9001\q_start_clock.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\borbg\Documents\Projects\Quark\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\borbg\Documents\Projects\Quark\build\CMakeFiles\q_start_clock" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{2191DEA9-4DA3-3C2F-83C0-0BA7E091D9B3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
