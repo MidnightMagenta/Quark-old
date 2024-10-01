@@ -1,5 +1,0 @@
-﻿  Starting console clock
-  The system cannot find the path specified.
-  'ConsoleClockRun.exe' is not recognized as an internal or external command,
-  operable program or batch file.
-C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(254,5): error MSB8066: Custom build for 'C:\Users\borbg\Documents\Projects\Quark\build\CMakeFiles\4cbf12e4b53d32a6fb7de215056f9001\q_start_clock.rule' exited with code 1.
